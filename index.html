@@ -1,0 +1,2959 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="くわがた荘">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#3f5a2a">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>くわがた荘 – クワガタ飼育ゲーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e7ecd9; --panel:#f4f6ea; --ink:#222c1c; --mute:#5d6951; --line:#c4cdac;
+  --sap:#b87110; --sap-ink:#ffffff; --bark:#3a2a1d; --leaf:#4f7d27; --warn:#b3402a;
+  --tape:#f0dc8c; --tape-ink:#3b3216; --shadow:rgba(40,50,25,.18);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121910; --panel:#1c2619; --ink:#e5ebd2; --mute:#9aa88a; --line:#31402b;
+    --sap:#e5a73a; --sap-ink:#2a1c05; --leaf:#8fbf55; --warn:#ef7a5f;
+    --tape:#d8c36e; --tape-ink:#2c2610; --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121910; --panel:#1c2619; --ink:#e5ebd2; --mute:#9aa88a; --line:#31402b;
+  --sap:#e5a73a; --sap-ink:#2a1c05; --leaf:#8fbf55; --warn:#ef7a5f;
+  --tape:#d8c36e; --tape-ink:#2c2610; --shadow:rgba(0,0,0,.45);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*,*::before,*::after{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:500 15px/1.6 "Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+button{font:inherit;color:inherit;cursor:pointer;}
+button:focus-visible,.tile:focus-visible{outline:3px solid var(--sap);outline-offset:2px;}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:2px solid var(--line);padding:10px 14px 8px;}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.brand{display:flex;align-items:baseline;gap:10px;}
+h1{margin:0;font:400 22px/1.1 "Dela Gothic One","Zen Kaku Gothic New",sans-serif;letter-spacing:.02em;}
+.day{color:var(--mute);font-weight:700;font-size:13px;}
+.pt{font:400 20px/1 "Dela Gothic One",sans-serif;color:var(--sap);}
+.pt small{font:700 12px "Zen Kaku Gothic New",sans-serif;color:var(--mute);margin-left:3px;}
+.ctrl{display:flex;gap:10px;margin-top:8px;align-items:center;flex-wrap:wrap;}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);}
+.seg button{border:0;background:transparent;padding:5px 11px;font-weight:700;font-size:13px;}
+.seg button[aria-pressed="true"]{background:var(--sap);color:var(--sap-ink);}
+.cap{font-size:12px;color:var(--mute);font-weight:700;}
+#tempNote{font-size:12px;color:var(--mute);margin-top:4px;min-height:18px;}
+
+main{padding:14px 14px 110px;max-width:640px;margin:0 auto;}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--panel);border-top:2px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));gap:6px;}
+.tabs button{flex:1;border:0;background:transparent;border-radius:12px;padding:8px 4px;font-weight:700;font-size:13px;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:1px;}
+.tabs button span{font-size:20px;line-height:1.1;}
+.tabs button[aria-current="true"]{background:var(--sap);color:var(--sap-ink);}
+
+/* cards */
+.card{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px;}
+.card h2{margin:0 0 4px;font-size:15px;font-weight:900;}
+.card p{margin:4px 0;font-size:14px;}
+.card details summary{font-weight:900;cursor:pointer;}
+.card ul{margin:6px 0 0;padding-left:1.2em;font-size:14px;}
+.card li{margin:3px 0;}
+.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:900;background:var(--sap);color:var(--sap-ink);font-size:15px;}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--ink);}
+.btn.danger{background:transparent;border:2px solid var(--warn);color:var(--warn);}
+.btn:disabled{opacity:.42;cursor:not-allowed;}
+.btn small{font-weight:700;opacity:.85;margin-left:4px;}
+.btns{display:grid;gap:8px;margin-top:10px;}
+.btns.two{grid-template-columns:1fr 1fr;}
+
+/* shelf */
+.shelfhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px;}
+.shelfhead b{font-size:14px;}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;}
+.tile{position:relative;display:block;width:100%;padding:0;text-align:left;border:2px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:0 3px 0 var(--shadow);}
+.tile .lid{height:9px;background:var(--bark);border-bottom:2px solid rgba(0,0,0,.25);}
+.art{aspect-ratio:200/170;background:#2b1d13;overflow:hidden;position:relative;}
+.art svg{display:block;width:100%;height:100%;}
+.tile .label{position:relative;margin:-16px 8px 6px;padding:5px 8px 6px;background:var(--tape);color:var(--tape-ink);border-radius:3px;transform:rotate(-1.4deg);box-shadow:0 1px 0 rgba(0,0,0,.25);}
+.grid .tile:nth-child(even) .label{transform:rotate(1.2deg);}
+.tile .label b{display:block;font-size:13px;line-height:1.25;font-weight:900;}
+.tile .label .st{font-size:12px;font-weight:700;opacity:.8;}
+.tile .mini{height:6px;margin:4px 10px 10px;border-radius:4px;background:var(--line);overflow:hidden;}
+.tile .mini i{display:block;height:100%;background:var(--leaf);border-radius:4px;transition:width .3s;}
+.tile.warn{border-color:var(--warn);}
+.tile.warn .mini i{background:var(--warn);}
+.tile.warn::after{content:"お世話!";position:absolute;top:14px;right:6px;background:var(--warn);color:#fff;font-weight:900;font-size:11px;padding:1px 7px;border-radius:9px;}
+.tile.dead .art{filter:grayscale(1);opacity:.75;}
+.tile.empty{border-style:dashed;background:transparent;min-height:180px;display:flex;align-items:center;justify-content:center;color:var(--mute);font-weight:700;box-shadow:none;}
+
+.log{list-style:none;margin:0;padding:0;font-size:13px;}
+.log li{padding:5px 0;border-bottom:1px dashed var(--line);display:flex;gap:8px;}
+.log li:last-child{border:0;}
+.log .d{color:var(--mute);min-width:3.4em;font-weight:700;}
+.log .bad{color:var(--warn);}
+.log .good{color:var(--leaf);font-weight:700;}
+
+/* sheet */
+.sheet-back{position:fixed;inset:0;background:rgba(10,14,8,.55);z-index:30;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;max-height:92vh;max-height:92dvh;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;border-top:3px solid var(--line);padding:0 16px calc(24px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out;max-width:640px;margin:0 auto;}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet[hidden],.sheet-back[hidden]{display:none;}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 10px;}
+.sheet .art.big{border-radius:16px;border:2px solid var(--line);}
+.sheet-head{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0 10px;border-bottom:2px solid var(--line);margin-bottom:12px;}
+.sheet-head h2{margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:400 18px/1.3 "Dela Gothic One","Zen Kaku Gothic New",sans-serif;}
+.sheet .stage{color:var(--mute);font-weight:700;margin:0 0 8px;font-size:14px;}
+.bar{display:grid;grid-template-columns:5.6em 1fr 2.4em;align-items:center;gap:8px;margin:6px 0;font-size:13px;font-weight:700;}
+.bar .track{height:10px;background:var(--line);border-radius:6px;overflow:hidden;}
+.bar .track i{display:block;height:100%;background:var(--leaf);border-radius:6px;transition:width .3s;}
+.bar.low .track i{background:var(--warn);}
+.bar em{font-style:normal;text-align:right;color:var(--mute);}
+dl.info{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;margin:10px 0;font-size:14px;}
+dl.info dt{color:var(--mute);font-weight:700;}
+dl.info dd{margin:0;font-weight:700;}
+.note{background:var(--panel);border:2px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:14px;margin:8px 0;}
+.sheet h3{font-size:14px;margin:14px 0 4px;font-weight:900;}
+.close{flex:none;border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:6px 16px;font-weight:900;font-size:14px;}
+
+.sheet .stage{margin-top:10px;}
+.kbtn{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:1px;}
+.kbtn span{font-weight:900;}
+.kbtn em{font-style:normal;font-size:12px;font-weight:700;opacity:.85;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px;}
+.chips span{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:2px 12px;font-size:12px;font-weight:700;color:var(--mute);}
+.chk{list-style:none;margin:4px 0 8px;padding:0;font-size:13px;font-weight:700;}
+.chk li.ok{color:var(--leaf);}
+.chk li.ng{color:var(--warn);}
+.drop{position:absolute;top:-10px;width:6px;height:10px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#8ec9ff;opacity:.9;animation:fall .9s ease-in forwards;}
+@keyframes fall{to{transform:translateY(190px);opacity:0}}
+.spark{position:absolute;font-size:18px;animation:pop .9s ease-out forwards;}
+@keyframes pop{from{transform:scale(.3);opacity:1}to{transform:scale(1.4) translateY(-20px);opacity:0}}
+.sway{transform-origin:100px 85px;animation:sway 7s ease-in-out infinite;}
+.tile .sway{animation:none;}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+
+/* dex & shop */
+.dexc{display:grid;grid-template-columns:110px 1fr;gap:12px;background:var(--panel);border:2px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:12px;}
+.dexc .art{aspect-ratio:auto;height:100%;min-height:120px;}
+.dexc .art svg{position:absolute;inset:0;}
+.dexc.unk .art svg > :not(rect){filter:brightness(0);opacity:.55;}
+.dexc .dtxt{padding:10px 12px 10px 0;}
+.dexc h3{margin:0;font-size:15px;font-weight:900;}
+.dexc .sci{font-size:12px;color:var(--mute);font-style:italic;}
+.dexc p{margin:4px 0;font-size:13px;}
+.stars{color:var(--sap);letter-spacing:1px;font-size:13px;}
+.shopc{display:flex;gap:12px;align-items:center;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:10px;margin-bottom:10px;}
+.shopc .art{width:96px;flex:none;border-radius:10px;}
+.shopc .meta{flex:1;min-width:0;}
+.shopc h3{margin:0;font-size:15px;font-weight:900;}
+.shopc p{margin:2px 0;font-size:12px;color:var(--mute);}
+.shopc .btn{padding:9px 12px;font-size:14px;white-space:nowrap;}
+
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--bark);color:#fff;padding:9px 16px;border-radius:14px;font-weight:700;font-size:14px;max-width:88%;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s;}
+#toast.on{opacity:1;}
+@media (prefers-reduced-motion:reduce){.sway,.sheet,.drop,.spark{animation:none!important;}}
+
+/* v2 */
+.seg.full{display:flex;width:100%;margin-bottom:12px}
+.seg.full button{flex:1}
+.btn.sm{padding:7px 12px;font-size:13px}
+.envgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 2px}
+.env{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:6px 4px;text-align:center}
+.env small{display:block;font-size:11px;color:var(--mute);font-weight:700}
+.env b{font:400 18px/1.3 "Dela Gothic One","Zen Kaku Gothic New",sans-serif}
+.ctl{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ctl .lb{font-weight:900;font-size:14px;min-width:0}
+.ctl .lb small{display:block;font-weight:700;color:var(--mute);font-size:11px}
+.step{display:inline-flex;align-items:center;gap:6px}
+.step button:not(.btn){width:34px;height:34px;border-radius:10px;border:2px solid var(--line);background:var(--panel);font-weight:900;font-size:18px;line-height:1}
+.step b{min-width:3.4em;text-align:center;font-size:15px}
+.bar .track{position:relative}
+.bar .zone{position:absolute;top:0;bottom:0;background:rgba(79,125,39,.3);border-left:2px solid var(--leaf);border-right:2px solid var(--leaf);text-decoration:none}
+.bar .track i{position:relative}
+.tsc{margin:6px 0 10px}
+.tsl{display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:700;flex-wrap:wrap}
+.tsl b{font-weight:900}
+.tsl em{font-style:normal;margin-left:auto;color:var(--mute);font-size:12px}
+.tsc.mid .tsl b{color:var(--sap)}
+.tsc.hot .tsl b{color:var(--warn)}
+.tsb{position:relative;height:12px;border-radius:7px;background:var(--line);margin-top:4px}
+.tsb .ok{position:absolute;top:0;bottom:0;background:rgba(79,125,39,.45);border-radius:7px}
+.tsb .mk{position:absolute;top:-3px;width:5px;height:18px;margin-left:-2px;border-radius:3px;background:var(--ink);border:1px solid var(--bg)}
+.bdg{position:absolute;top:12px;left:6px;z-index:2;font-size:11px;font-weight:900;background:rgba(0,0,0,.6);color:#fff;border-radius:9px;padding:0 7px}
+.bdg.hot{background:var(--warn)}
+.hold{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hold.on{background:var(--sap);color:var(--sap-ink);border-color:var(--sap)}
+.mtag{display:inline-block;background:var(--tape);color:var(--tape-ink);border-radius:6px;padding:0 7px;font-size:12px;font-weight:900}
+.spc{display:grid;grid-template-columns:78px 1fr;gap:10px;align-items:center;border-top:1px dashed var(--line);padding:8px 0}
+.spc .art{aspect-ratio:1;border-radius:10px;background:#2b1d13}
+.spc b{font-size:14px}
+.spc p{margin:2px 0;font-size:12px}
+.board{margin:6px 0 0;padding-left:1.6em;font-size:14px}
+.board li{padding:2px 0}
+.board li.me{color:var(--sap);font-weight:900}
+.cap2{font-size:12px;color:var(--mute)}
+.shnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.shnav>div{text-align:center;flex:1}
+.shnav b{display:block;font:400 18px/1.2 "Dela Gothic One","Zen Kaku Gothic New",sans-serif}
+.shnav small{font-size:12px;color:var(--mute);font-weight:700}
+.shnav button{width:48px;height:42px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:900;font-size:18px}
+.shnav button:disabled{opacity:.35}
+.tile .mkr{position:absolute;top:32px;left:6px;z-index:2;font-size:20px;line-height:1;font-weight:900;text-shadow:0 0 3px #000,0 0 3px #000,0 0 2px #000}
+.tile .lid{transition:background .2s}
+.mkrow{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.mkb{border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:5px 10px;font-weight:900;font-size:14px;min-width:38px}
+.mkb.on{border-color:var(--sap);background:var(--sap);color:var(--sap-ink)}
+.mcb{width:30px;height:30px;border-radius:50%;border:3px solid var(--line);padding:0}
+.mcb.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg) inset}
+.shopc{align-items:flex-start}
+.shopc .meta{flex:1;min-width:0}
+.sbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.sbtns .btn{padding:8px 6px;font-size:13px;white-space:nowrap}
+.treewrap{overflow-x:auto;padding:6px 0 10px;-webkit-overflow-scrolling:touch}
+.tree{display:flex;justify-content:center;margin:0 0 14px;padding:0;min-width:max-content}
+.tree ul{display:flex;justify-content:center;margin:0;padding:14px 0 0;position:relative}
+.tree li{list-style:none;position:relative;padding:14px 5px 0;display:flex;flex-direction:column;align-items:center}
+.tree>li{padding-top:0}
+.tree li::before,.tree li::after{content:"";position:absolute;top:0;right:50%;width:50%;height:14px;border-top:2px solid var(--line)}
+.tree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
+.tree li:only-child::before,.tree li:only-child::after{display:none}
+.tree li:only-child{padding-top:0}
+.tree>li::before,.tree>li::after{display:none}
+.tree>li:only-child{padding-top:0}
+.tree li:first-child::before,.tree li:last-child::after{border:0 none}
+.tree li:last-child::before{border-right:2px solid var(--line);border-radius:0 6px 0 0}
+.tree li:first-child::after{border-radius:6px 0 0 0}
+.tree li>ul::before{content:"";position:absolute;top:0;left:50%;height:14px;border-left:2px solid var(--line)}
+.couple{display:flex;align-items:center;gap:3px}
+.couple>i{font-style:normal;color:var(--mute);font-weight:900}
+.nd{border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:3px 7px;text-align:center;font-size:11px;font-weight:700;line-height:1.35;min-width:74px;position:relative}
+.nd b{display:block;font-size:12px;font-weight:900}
+.nd span{display:block;color:var(--mute)}
+.nd.m{border-top:4px solid #5b8fd6}
+.nd.f{border-top:4px solid #e07aa6}
+.nd.spec{border-color:var(--leaf);background:rgba(79,125,39,.18)}
+.nd.spec span{color:var(--ink)}
+.nd.unk{border-style:dashed;opacity:.8}
+.nd .dot{position:absolute;top:-6px;right:-6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bg)}
+.nd .mkc{font-style:normal;margin-left:2px}
+.lone{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px}
+/* v3 tree / ped detail */
+.pedblk{margin:10px 0 14px}
+.pedt{font-size:12px;font-weight:900;color:var(--mute);margin-bottom:4px}
+.pedsvg{display:block;margin:0 auto;max-width:none}
+.pedsvg .ln{stroke:var(--mute);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pedsvg .cell{fill:var(--panel);stroke:var(--line);stroke-width:2}
+.pedsvg .cell.spec{stroke:var(--leaf);stroke-width:3;fill:rgba(79,125,39,.14)}
+.pedsvg .cell.gone{stroke-dasharray:5 4}
+.pedsvg .sx-m{fill:#5b8fd6}
+.pedsvg .sx-f{fill:#e07aa6}
+.pedsvg .nt{font:900 11px "Zen Kaku Gothic New","Hiragino Sans",sans-serif;fill:var(--ink)}
+.pedsvg .nt2{font:700 10px "Zen Kaku Gothic New","Hiragino Sans",sans-serif;fill:var(--mute)}
+.pedsvg .nt3{font:700 9.5px "Zen Kaku Gothic New","Hiragino Sans",sans-serif;fill:var(--mute)}
+.pedsvg .ghe{fill:none;stroke:var(--mute);stroke-width:2;stroke-dasharray:4 3}
+.pedsvg .ght{font:900 18px sans-serif;fill:var(--mute)}
+.pedsvg .bdy{stroke:rgba(0,0,0,.4);stroke-width:1}
+.pedsvg g[data-act]{cursor:pointer}
+.pedsvg g[data-act]:hover .cell{stroke:var(--sap)}
+.pedsvg g[data-act]:focus-visible{outline:3px solid var(--sap)}
+.pdgrid{display:grid;grid-template-columns:minmax(130px,.85fr) 1.15fr;border:2px solid var(--line);border-radius:14px;overflow:hidden}
+.pdl{background:var(--bg);padding:10px}
+.pdl .art.big{border-radius:12px;border:2px solid var(--line);aspect-ratio:200/170}
+.pdl .noimg{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font:400 40px "Dela Gothic One",sans-serif;color:var(--mute);background:var(--panel)}
+.pdl .noimg small{font:700 11px sans-serif}
+.gg{position:relative;height:8px;border-radius:5px;background:var(--line);margin:12px 4px 4px}
+.gg i{position:absolute;top:-4px;width:6px;height:16px;margin-left:-3px;border-radius:3px;background:var(--sap)}
+.ggl{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);font-weight:700}
+.ggl b{color:var(--ink)}
+.pdr{background:var(--panel);border-left:2px solid var(--line);padding:10px 12px}
+.pdr p{margin:0 0 9px;font-size:13px;line-height:1.5}
+.pdr .k{display:block;font-size:11px;font-weight:900;color:var(--mute)}
+.lnk{border:0;background:transparent;padding:0;font:inherit;font-weight:900;color:var(--sap);text-decoration:underline;text-underline-offset:2px;text-align:left}
+@media (max-width:420px){.pdgrid{grid-template-columns:1fr}.pdr{border-left:0;border-top:2px solid var(--line)}.pdl .art.big{max-width:240px;margin:0 auto}}
+/* 血統ノート */
+.pgrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pgb{border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:5px 12px;font-weight:900;font-size:13px;min-width:44px}
+.pgb.sm{padding:5px 0;min-width:34px;flex:1}
+.pgb.fill{background:rgba(79,125,39,.2);border-color:var(--leaf)}
+.pgb.on{background:var(--sap);border-color:var(--sap);color:var(--sap-ink)}
+.pghead{display:flex;align-items:center;gap:10px;font-size:16px}
+.pgno{background:var(--bark);color:#fff;border-radius:8px;padding:0 9px;font-size:13px;font-weight:900}
+.blname{display:flex;align-items:center;gap:6px;margin:8px 0 4px}
+.blname input{flex:1;min-width:0;font:900 17px "Zen Kaku Gothic New",sans-serif;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:7px 10px}
+.blname input:focus{outline:3px solid var(--sap);outline-offset:1px}
+.blname b{font:400 17px "Dela Gothic One","Zen Kaku Gothic New",sans-serif}
+.pgrow.pages{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+.pgrow.pages .pgb.sm{min-width:0;padding:6px 0}
+.seg button.new{position:relative}
+.seg button.new::after{content:'';position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--warn);}
+ul.pn{margin:4px 0 8px;padding-left:1.2em;}
+ul.pn li{margin:3px 0;line-height:1.5;}
+.care{border:2px solid var(--warn);border-radius:12px;padding:8px 12px;margin:0 0 10px;background:var(--panel);}
+.care b{color:var(--warn);font-size:14px;}
+.care ul{margin:4px 0 0;padding-left:1.2em;font-size:13px;line-height:1.5;}
+.care li.n{color:var(--mute);}
+.wander{animation:wander 1.8s ease-in-out infinite;transform-box:view-box;transform-origin:100px 110px;}
+@keyframes wander{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-16px,5px) rotate(-14deg)}50%{transform:translate(8px,-6px) rotate(9deg)}75%{transform:translate(15px,4px) rotate(16deg)}}
+@media (prefers-reduced-motion:reduce){.wander{animation-duration:4s}}
+.jawg{position:fixed;inset:0;z-index:60;background:rgba(10,14,8,.6);display:flex;align-items:center;justify-content:center;padding:16px;}
+.jawbox{background:var(--bg);border:3px solid var(--line);border-radius:18px;padding:16px;width:100%;max-width:420px;}
+.jtrack{position:relative;height:34px;border:2px solid var(--line);border-radius:10px;background:var(--panel);margin:12px 0;overflow:hidden;}
+.jtrack u{position:absolute;top:0;bottom:0;background:#6fc27a;opacity:.8;}
+.jtrack i{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:var(--ink,#222);border-radius:2px;}
+#sBars .bar{grid-template-columns:3.4em 1fr 2em 10.6em;gap:6px;}
+.bar .bb{display:flex;gap:4px;justify-content:flex-end;}
+.btn.sbtn{padding:5px 8px;font-size:12px;min-height:0;line-height:1.2;white-space:nowrap;}
+.btn.sbtn small{margin-left:3px;font-size:10px;opacity:.85;}
+.btn.sm{padding:6px 10px;font-size:12px;}
+@media (max-width:380px){#sBars .bar{grid-template-columns:3em 1fr 1.8em 10.2em;gap:4px}.btn.sbtn{padding:5px 5px;font-size:11.5px}}
+.tile{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+.tile.lifted{opacity:.35;}
+.tile.ghost{position:fixed;z-index:80;pointer-events:none;transform:rotate(3deg) scale(.6);box-shadow:0 10px 24px rgba(0,0,0,.35);opacity:.95;}
+body.dragging{overflow:hidden;touch-action:none;}
+.droph{outline:3px dashed var(--sap);outline-offset:2px;}
+.dropbar{position:fixed;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:85;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;border:2px solid var(--line);border-radius:14px;background:var(--bg);box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:624px;margin:0 auto;}
+.dropbar .dropt{flex:1 1 auto;padding:10px 12px;border:2px dashed var(--line);border-radius:10px;font-weight:900;font-size:13px;text-align:center;background:var(--panel);}
+.dropbar .dropt small{display:block;font-weight:700;font-size:11px;opacity:.75;}
+.dropbar .dropt.droph{background:var(--sap);color:var(--sap-ink);outline:none;}
+.dropbar .cap{width:100%;}
+.note.warn{border-color:var(--warn);color:var(--warn);border-style:solid}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="row">
+    <div class="brand"><h1>くわがた荘</h1><span class="day">Day <b id="day">1</b> ・ <span id="season">春</span></span></div>
+    <div class="pt"><span id="pt">100</span><small>pt</small></div>
+  </div>
+  <div class="ctrl">
+    <span class="cap">速さ</span>
+    <div class="seg" id="spdSeg" role="group" aria-label="ゲームの速さ">
+      <button data-act="speed" data-v="1" aria-pressed="true">×1</button>
+      <button data-act="speed" data-v="3" aria-pressed="false">×3</button>
+      <button data-act="speed" data-v="10" aria-pressed="false">×10</button>
+    </div>
+    <span class="cap">音</span>
+    <div class="seg" id="audSeg" role="group" aria-label="音の設定">
+      <button data-act="aud" data-v="bgm" aria-pressed="true">BGM</button>
+      <button data-act="aud" data-v="sfx" aria-pressed="true">効果音</button>
+    </div>
+    <span class="cap" id="audNote"></span>
+    <div class="seg"><button data-act="patch" id="pnBtn" aria-label="更新情報">📝 更新情報</button></div>
+  </div>
+  <div id="tempNote"></div>
+</header>
+
+<main id="view"></main>
+
+<nav class="tabs" aria-label="メニュー">
+  <button data-act="tab" data-v="shelf" aria-current="true"><span>🫙</span>飼育棚</button>
+  <button data-act="tab" data-v="dex" aria-current="false"><span>📖</span>図鑑</button>
+  <button data-act="tab" data-v="ev" aria-current="false"><span>🏆</span>イベント</button>
+  <button data-act="tab" data-v="shop" aria-current="false"><span>🛒</span>ショップ</button>
+</nav>
+
+<div id="sheetBack" class="sheet-back" data-act="close" hidden></div>
+<section id="sheet" class="sheet" role="dialog" aria-modal="true" aria-label="くわがたの詳細" hidden></section>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{
+'use strict';
+const KEY='kuwagata-sou-v3',KEY2='kuwagata-sou-v2',KEY1='kuwagata-sou-v1';
+const DAY_SEC=30,OFFLINE_SLOW=10,OFFLINE_CAP=43200,EGG=5,PUPA=10,YEAR=120;
+const CEL_CAP=6,AC_MIN=20,AC_MAX=30,CEL_MIN=5,CEL_MAX=20;
+
+/* 温度に対する速さ(温度が高いほど育つのは早い) */
+const T_DEV=[[8,.3],[14,.55],[18,.75],[23,1],[28,1.35],[33,1.7]];
+const T_G=[[8,.85],[18,.95],[23,1],[28,.9],[33,.8]];
+const T_AGE=[[8,.6],[18,.8],[23,1],[28,1.3],[33,1.7]];
+const T_DRY=[[8,.6],[18,.8],[23,1],[28,1.3],[33,1.8]];
+function itp(tb,t){
+  if(t<=tb[0][0])return tb[0][1];
+  for(let i=1;i<tb.length;i++){
+    if(t<=tb[i][0]){const a=tb[i-1],b=tb[i];return a[1]+(b[1]-a[1])*(t-a[0])/(b[0]-a[0]);}
+  }
+  return tb[tb.length-1][1];
+}
+
+/* lay: wood=材産み / mat=マット産み, iri=色虫(体色で評価が変わる)
+   pref=適温 tol=耐えられる限界 v=見た目 md=大あごの形
+   rest=羽化後の休眠(後食まで・日) ripe=後食から成熟まで(日)
+   fm=幼虫のエサ適性(0=育たない) kinRisk=菌糸で育てた時の羽化不全の増えやすさ mm=飼育メモ */
+const SP={
+ kokuwa:{name:'コクワガタ',s:'コクワガタ',sci:'Dorcus rectus',m:[20,54],f:[18,30],peak:3,larva:40,life:110,price:20,star:1,lay:'wood',rest:8,ripe:6,
+  col:'#3b2a22',shine:'#8a6b5a',pref:[15,28],tol:[4,32],fm:{mat:1,kin:.7,kaw:.65,big:1},kinRisk:.2,mu:{bad:.6,sp:.6,inb:.6,val:1.5,kin:3},
+  mm:'発酵マット向き。菌糸だと小型化しやすいが、変わった個体(大型化・ホワイトアイなど)も出やすい。',
+  v:{hw:.82,pw:20,ps:'round',ew:23.5,eh:39,st:8,gl:.25},
+  md:{len:.5,out:.2,tip:-.14,th:3.6,taper:.55,teeth:[[.5,.9,.16]]},
+  blurb:'身近な小型種。じょうぶで、はじめの一匹におすすめ。大あごの内側に小さな歯が1つ。'},
+ yamatosabi:{name:'ヤマトサビクワガタ',s:'ヤマトサビ',sci:'Dorcus japonicus',m:[15,27],f:[16,23],peak:1.6,larva:32,life:120,price:15,star:1,lay:'wood',rest:14,ripe:8,
+  col:'#7a4a2a',shine:'#c98a4a',mc:'#14100d',pref:[12,24],tol:[4,28],fm:{mat:1,kin:.1,kaw:.1,big:1},drop:1,mu:{bad:.6,sp:.6,inb:.6,val:1.5},
+  mm:'発酵マットで育てる。菌糸は相性が悪く、幼虫が落ちてしまう。涼しい環境を好む。',
+  v:{hw:.85,pw:20,ps:'round',ew:24,eh:37,st:0,hair:'all',gl:.05,tib:3.6},
+  md:{len:.38,out:.16,tip:-.12,th:3.2,taper:.55,teeth:[[.5,.8,.14]]},
+  blurb:'国産の小型種。錆びたビロードのような体で、大あごだけ黒い。乾燥にやや弱い。羽化後は約2か月で活動する。'},
+ nokogiri:{name:'ノコギリクワガタ',s:'ノコギリ',sci:'Prosopocoilus inclinatus',m:[28,75],f:[25,40],peak:6,larva:55,life:100,price:40,star:2,lay:'nowood',rest:14,ripe:6,
+  col:'#6b3521',shine:'#d08a58',pref:[18,28],tol:[8,32],fm:{mat:1.05,kin:.3,kaw:.25,big:1.05},kinRisk:.25,steep:1,cr:['#9a4b2b','#3a2219'],
+  mdv:[{max:.35,n:'原名型(小歯型)',md:{len:.82,out:.14,tip:-.04,th:3,taper:.6,teeth:[[.3,.45,.07],[.42,.45,.07],[.54,.45,.07],[.66,.45,.07],[.78,.4,.07]]}},
+   {max:.7,n:'カンチ型(中歯型)',md:{len:.95,out:.5,tip:-.34,th:3.4,taper:.6,teeth:[[.22,.8,.1],[.33,.8,.1],[.44,.8,.1],[.55,.8,.1],[.66,.8,.1],[.77,.8,.1],[.88,.7,.09]]}},
+   {max:9,n:'水牛型(大歯型)',md:{len:1.02,out:.66,tip:-.44,th:3.8,taper:.62,teeth:[[.2,1.5,.15],[.42,.7,.1],[.56,.55,.08],[.7,.5,.08],[.84,.45,.08]]}}],
+  mm:'マット向き。菌糸は終齢で嫌がって潜らず、羽化不全が増える。産卵木がなくても発酵マットに産む。',
+  v:{hw:1,pw:22,ps:'hex',ew:25,eh:40,st:0,hair:'pron',gl:.2},
+  md:{len:.95,out:.5,tip:-.34,th:3.4,taper:.6,teeth:[[.22,.8,.1],[.33,.8,.1],[.44,.8,.1],[.55,.8,.1],[.66,.8,.1],[.77,.8,.1],[.88,.7,.09]]},
+  blurb:'赤みのある体。内側にノコギリ状の歯が並ぶ、反り返った大あごが自慢。羽化後は半年以上休むこともある。'},
+ hirata:{name:'ヒラタクワガタ',s:'ヒラタ',sci:'Dorcus titanus',ag:0.7,m:[30,80],f:[25,45],peak:12,larva:70,life:155,price:40,star:2,lay:'wood',rest:12,ripe:10,
+  col:'#1c1a1d',shine:'#6a6472',pref:[20,28],tol:[10,33],fm:{mat:1,kin:1.2,kaw:.9,big:1},mu:{inb:.8},hib:1,
+  mm:'マットでも菌糸でも育つ。菌糸(オオヒラタケ)でより大型に。成虫は室温15°C以下で冬眠する(エサ・掃除不要、霧吹きは必要)。',
+  v:{hw:1.28,pw:26,ps:'wide',ew:29,eh:37,st:9,pu:1,flat:1,tib:5.2,gl:.2},
+  md:{len:.72,out:.46,tip:-.3,th:7.2,taper:.5,teeth:[[.38,.75,.2],[.66,.45,.14]]},
+  blurb:'平たくて幅広い体、縦溝の入った翅。太い大あごの真ん中に大きな歯。長生き。'},
+ miyama:{name:'ミヤマクワガタ',s:'ミヤマ',sci:'Lucanus maculifemoratus',m:[32,78],f:[26,40],peak:7,larva:60,life:80,price:70,star:3,lay:'mat',rest:40,ripe:4,cold:1,
+  col:'#6e4a2c',hc:'#2b1e15',shine:'#d6b25c',pref:[14,23],tol:[6,27],fm:{mat:1,kin:0,kaw:0,big:1},
+  mm:'菌糸ビンでは育たない。発酵マットで育てる。涼しい環境を好む。',
+  v:{hw:1.08,pw:20.5,ps:'round',ew:24,eh:41,st:0,hair:'all',ear:1,gl:.1},
+  md:{len:.85,out:.3,tip:-.1,th:4.4,taper:.5,teeth:[[.16,1.2,.14],[.5,.5,.1]],fork:.9},
+  blurb:'頭の横に耳のような突起、金色の毛。大あごの根元に大きな歯。涼しい場所を好み、菌糸ビンでは育たない。'},
+ okuwa:{name:'オオクワガタ',s:'オオクワガタ',sci:'Dorcus hopei binodulosus',ag:0.8,m:[27,85],f:[24,48],peak:15,larva:85,life:220,price:120,star:4,lay:'wood',rest:26,ripe:24,
+  col:'#0b0b10',shine:'#6a6e98',pref:[18,26],tol:[8,30],fm:{mat:.6,kin:1.35,kaw:1.05,big:.6},steep:1,mu:{inb:1.3},semi:1,
+  mm:'菌糸ビンが最適。マットだと大型は難しい。幼虫には季節の温度変化が必要。',
+  v:{hw:1.16,pw:24,ps:'hex',ew:26,eh:41,st:9,pu:1,tib:5,gl:.6},
+  md:{len:.66,out:.38,tip:-.25,th:6.8,taper:.5,teeth:[[.45,.8,.2]]},
+  blurb:'つやのある黒い体は「黒いダイヤ」。羽化後の休眠が長く、繁殖できるまで半年ほどかかる。寿命も長い。'},
+ girafa:{name:'ギラファノコギリクワガタ',s:'ギラファ',sci:'Prosopocoilus giraffa',ag:1,m:[50,118],f:[35,60],peak:18,larva:150,life:160,price:300,star:4,lay:'wood',rest:16,ripe:14,
+  col:'#2c1812',shine:'#a65a30',pref:[20,26],tol:[14,31],fm:{mat:.7,kin:1.4,kaw:1,big:.7},steep:1,mdc:1,
+  mm:'菌糸に入れた場合が一番大きくなる。マットでも育つ。',
+  v:{hw:1,pw:22,ps:'hex',ew:25,eh:45,st:0,hair:'pron',gl:.3},
+  md:{len:1.4,out:.24,tip:.06,th:3.2,taper:.65,teeth:[[.5,.9,.08],[.62,.9,.08],[.74,.9,.08],[.86,.9,.08]],fork:.8},
+  blurb:'世界最大級。体の倍近い長い大あごが弧を描き、先が二股にわかれる。丈夫で寿命も長め。'},
+ boileau:{name:'ボイレアウシカクワガタ',s:'ボイレアウ',sci:'Rhaetulus crenatus boileaui',ag:0.4,m:[38,66],f:[24,33],peak:8,larva:60,life:125,price:210,star:3,lay:'wood',rest:48,ripe:18,
+  col:'#5e3822',hc:'#140d09',shine:'#e8d9a8',pref:[18,27],tol:[10,30],fm:{mat:1.05,kin:.95,kaw:1,big:1.05},dirt:.5,
+  mm:'発酵マットがわずかに合う(菌糸も可)。シカクワガタの中では暑さにも強く、育てやすい。',
+  v:{hw:1,pw:20.5,ps:'round',ew:24,eh:42,st:0,gl:.5,cream:1},
+  md:{len:.98,out:.46,tip:-.12,th:3.9,taper:.6,teeth:[[.2,1.3,.1],[.55,.6,.08]],fork:.5},
+  blurb:'シカクワガタの仲間。ラオス・ベトナム産で、上翅の両サイドがクリーム色。羽化後の休眠が長い。材産み。'},
+ didieri:{name:'ディディエールシカクワガタ',s:'ディディエール',sci:'Rhaetulus didieri',ag:0.5,m:[38,85],f:[28,42],peak:12,larva:80,life:130,price:170,star:3,lay:'wood',rest:50,ripe:30,
+  col:'#51301b',hc:'#150d09',shine:'#c58a52',pref:[16,23],tol:[8,27],fm:{mat:.8,kin:1.15,kaw:.95,big:.8},cold:1,dirt:.5,
+  mm:'菌糸(ヒラタケ)が理想。発酵マットでも羽化するが大型は難しい。低温を好む。',
+  v:{hw:1,pw:21,ps:'round',ew:24,eh:43,st:0,gl:.4},
+  md:{len:1.05,out:.52,tip:-.1,th:3.8,taper:.6,teeth:[[.18,1.4,.1],[.45,.7,.08],[.62,.7,.08]],fork:.6},
+  blurb:'マレーシア高地産のシカクワガタ。長く鋭い大あご。後食まで約2か月、成熟まで更に2〜3か月かかる。低温を好む。'},
+ speciosus:{name:'スペキオススシカクワガタ',s:'スペキオスス',sci:'Rhaetulus crenatus speciosus',ag:0.45,m:[35,68],f:[25,36],peak:10,larva:55,life:130,price:190,star:3,lay:'wood',rest:48,ripe:20,
+  col:'#9a3f1a',hc:'#1a110c',shine:'#f2c068',pref:[18,26],tol:[10,28],fm:{mat:1,kin:.9,kaw:1.15,big:1},dirt:.5,
+  mm:'菌糸でもマットでも育つ。カワラ菌糸で良い結果が出やすい。高温に注意。',
+  v:{hw:.98,pw:20.5,ps:'round',ew:24,eh:42,st:0,gl:.55},
+  md:{len:.95,out:.44,tip:-.1,th:3.6,taper:.6,teeth:[[.2,1.4,.1],[.5,.6,.08]],fork:.5},
+  blurb:'タイ産で、シカクワガタの中で最もメジャー。赤橙色の上翅と細長い大あごが美しい。後食まで2〜3か月かかる。'},
+ oberthuri:{name:'オーベルチュールクロツヤシカクワガタ',s:'オーベルチュール',sci:'Pseudorhaetus oberthuri',ag:0.5,m:[32,62],f:[24,36],peak:9,larva:75,life:120,price:230,star:4,lay:'wood',iri:true,gloss:true,rest:52,ripe:12,cr:['#b3122c','#1a0a0c'],
+  col:'#7c1325',hc:'#0b0809',shine:'#e0586d',pref:[17,24],tol:[9,28],fm:{mat:1,kin:.9,kaw:1.15,big:1},dirt:.5,
+  mm:'マットでも菌糸でも育つ。菌糸ならカワラ菌糸が合う。幼虫は落ちやすい。',
+  v:{hw:1.04,pw:21,ps:'hex',ew:25,eh:41,st:0,gl:.9},
+  md:{len:.72,out:.4,tip:-.1,th:5,taper:.55,teeth:[[.22,1.1,.12],[.55,.6,.1]],fork:.6},
+  blurb:'ベトナム産のニセシカ。真紅〜黒の上翅(個体差あり)と漆黒の前胸が美しい。艶の度合いで価値が決まる。休眠が約半年と長く、寿命は短め。低温を好む。'},
+ westwoodii:{name:'ウエストウッディオオシカクワガタ',s:'ウエストウッディ',sci:'Rhaetus westwoodii',ag:0.6,m:[45,97],f:[30,52],peak:24,larva:140,life:170,price:900,star:5,lay:'wood',rest:68,ripe:14,
+  col:'#6a3516',hc:'#120b07',shine:'#d08a42',pref:[10,21],tol:[4,26],fm:{mat:.85,kin:1.1,kaw:1.25,big:.85},cold:1,dirt:.5,nolay:.58,
+  mm:'オスはカワラ菌糸、メスはマットでも育つ。幼虫期間が長い。低温を好む。ペアリングしても産まないことが多い。',
+  v:{hw:1.22,pw:24,ps:'wide',ew:27,eh:42,st:0,gl:.5},
+  md:{len:1.2,out:.58,tip:-.14,th:5.8,taper:.55,teeth:[[.2,1.4,.12],[.5,.8,.1]],fork:1},
+  blurb:'インド〜ミャンマーの高地にすむ最大級のシカクワガタ。幼虫期間が長く、羽化後も半年〜1年の長い休眠が必要。'},
+ nijiiro:{name:'ニジイロクワガタ',s:'ニジイロ',sci:'Phalacrognathus muelleri',m:[38,75],f:[30,42],peak:10,larva:60,life:240,price:220,star:4,lay:'wood',iri:true,rest:12,ripe:20,
+  col:'#2f6fd0',shine:'#ffffff',pref:[19,29],tol:[12,33],fm:{mat:1,kin:1.2,kaw:.9,big:1},dirt:.6,mu:{bad:.7,sp:2,val:.6},wan:1,wanKin:1,
+  mm:'マットでも菌糸でも育つ。菌糸は大きく育つが、終齢で暴れて小さくなりやすい。',
+  v:{hw:1.1,pw:25,ps:'wide',ew:27,eh:37,st:0,gl:.95},
+  md:{len:.4,out:.16,tip:-.12,th:5,taper:.55,teeth:[[.45,.7,.18],[.8,.6,.12]]},
+  blurb:'金属光沢の虹色。短くて太い大あごに2つの歯。地の色(緑・赤・青など)と、翅の筋の色の組み合わせで価値が変わる。気温の変化に強く、汚しにくい。後食から3か月ほど待って成熟させる。'},
+ papuakin:{name:'パプアキンイロクワガタ',s:'パプアキン',sci:'Lamprima adolphinae',m:[22,52],f:[20,28],peak:3.5,larva:40,life:120,price:150,star:3,lay:'mat',iri:true,rest:10,ripe:6,
+  col:'#2f9d4a',shine:'#ffffff',pref:[20,27],tol:[14,31],fm:{mat:1,kin:.95,kaw:.8,big:1},dirt:2,wet:.6,mu:{bad:1.8,sp:.4},
+  mm:'発酵マットが主流。とにかく汚しやすいので掃除はこまめに。湿度は自然に上がるので加湿は控えめに。',
+  v:{hw:.95,pw:21,ps:'hex',ew:23,eh:42,st:0,gl:.95},
+  md:{len:.62,out:.32,tip:-.2,th:3.6,taper:.5,teeth:[[.6,.9,.08],[.72,.9,.08],[.84,.9,.08]]},
+  blurb:'ピカピカの小型の金属色。大あごの先に小さなギザギザ。色の個体差が大きい。'},
+ ougon:{name:'オウゴンオニクワガタ',s:'オウゴンオニ',sci:'Allotopus moellenkampi babai',m:[40,85],f:[32,48],peak:12,larva:75,life:200,price:260,star:5,lay:'wood',iri:true,gloss:true,rest:24,ripe:24,
+  col:'#d9a920',shine:'#ffffff',pref:[17,19],tol:[14,22],fm:{mat:0,kin:0,kaw:1.25,big:0},cold:1,mu:{bad:1.8,sp:.4},wan:1.6,
+  mm:'カワラ菌糸でしか育たない。終齢で暴れやすく、大きく育てるのが難しい。',
+  v:{hw:1.26,pw:25,ps:'hex',ew:26,eh:39,st:0,edge:1,gl:.85},
+  md:{len:.62,out:.34,tip:-.2,th:6,taper:.45,teeth:[[.3,1,.2]],fork:.9},
+  blurb:'黄金一色。色の違いはなく、艶(光沢)の度合いで価値が決まる。カワラ菌糸でしか育たない。羽化後3〜4か月で活動を始める。'},
+ tarandus:{name:'タランドゥスオオツヤクワガタ',s:'タランドゥス',sci:'Mesotopus tarandus',ag:1,m:[42,90],f:[35,52],peak:26,larva:85,life:240,price:280,star:4,lay:'wood',rest:18,ripe:20,
+  col:'#07070a',shine:'#7f86b5',pref:[18,20],tol:[15,23],fm:{mat:0,kin:0,kaw:1.3,big:0},cold:1,muggy:80,mu:{bad:1.3,sp:.7,val:.9},wan:.8,
+  mm:'カワラ菌糸でしか成長しない。マットやヒラタケ菌糸では大きく育たない。高温多湿に注意。',
+  v:{hw:1.2,pw:25,ps:'wide',ew:27,eh:40,st:0,gl:1,tib:5},
+  md:{len:.98,out:.48,tip:-.12,th:6.4,taper:.5,teeth:[[.16,1.2,.12],[.5,.5,.1]],fork:.9},
+  blurb:'アフリカを代表する大型のツヤクワガタ。つやのある黒い体と、角のように曲がった大あご。カワラ菌糸でしか育たない。寿命が長い。'}
+};
+const ORDER=['kokuwa','yamatosabi','nokogiri','hirata','miyama','okuwa','girafa','boileau','didieri','speciosus','oberthuri','papuakin','nijiiro','ougon','tarandus','westwoodii'];
+const WILD=[['kokuwa',40],['nokogiri',25],['hirata',16],['miyama',12],['okuwa',7],['yamatosabi',10]];
+const COLS={
+ /* ニジイロ: 地色(col)。筋色(cs)は別形質で NJS に定義 */
+ nijiiro:[
+  {id:'green',n:'緑',mult:1,w:65,st:['#6fd07d','#2f9d4a','#1f7a3a']},
+  {id:'red',n:'赤',mult:1.45,w:18,st:['#f06a45','#c0392b','#8e2a1d']},
+  {id:'blue',n:'青',mult:1.8,w:10,st:['#5ab0ff','#2f6fd0','#1d4a9a']},
+  {id:'purple',n:'紫',mult:2.2,w:5,st:['#b87af0','#7a3fb0','#52287e']},
+  {id:'black',n:'黒',mult:1.25,w:2,st:['#4b5470','#1c2030','#0b0d16']}],
+ papuakin:[
+  {id:'green',n:'緑',mult:1,w:45,st:['#6fd07d','#2f9d4a','#1f7a3a']},
+  {id:'gold',n:'金',mult:1.4,w:25,st:['#f6dc66','#d9a920','#a8791a']},
+  {id:'copper',n:'赤銅',mult:1.8,w:15,st:['#e88a5a','#b8512a','#7d3318']},
+  {id:'blue',n:'青',mult:2.5,w:10,st:['#5ab0ff','#2f6fd0','#1d4a9a']},
+  {id:'purple',n:'紫',mult:3.5,w:5,st:['#b87af0','#7a3fb0','#52287e']}],
+ ougon:[
+  {id:'g1',n:'並艶',mult:1,w:50,gl:.3,st:['#dcb94c','#c99d22','#a07418']},
+  {id:'g2',n:'艶良',mult:1.5,w:28,gl:.65,st:['#f1d25e','#dcae26','#b0821c']},
+  {id:'g3',n:'極艶',mult:2.2,w:15,gl:.95,st:['#fbe27a','#e8b92f','#b98a1e']},
+  {id:'g4',n:'鏡面艶',mult:3,w:7,gl:1.3,st:['#fff1a6','#f2c73c','#c4961f']}]
+};
+/* オーベルチュールの艶(体色は tone で別に決まる) */
+COLS.oberthuri=COLS.ougon.map(c=>Object.assign({},c,{st:['#d0485a','#9a1a2c','#4a0d16']}));
+/* 体色の幅(cr)がある種の色: tone 0〜1 で2色の間 */
+const toneCol=b=>{const sp=SP[b.sp];return sp.cr?mix(sp.cr[0],sp.cr[1],b.tone==null?.5:b.tone):sp.col;};
+const toneRoll=()=>clamp((Math.random()+Math.random())/2,0,1);
+/* 大あごの形: ノコギリはサイズで3型、ギラファは連続変化 */
+function mdOf(b){
+  const sp=SP[b.sp];
+  if(b.sex!=='m')return{md:sp.md,n:''};
+  const rg=sp.m,r=clamp((b.size-rg[0])/(rg[1]-rg[0]),0,1);
+  if(sp.mdv){const v=sp.mdv.find(x=>r<x.max)||sp.mdv[sp.mdv.length-1];return{md:v.md,n:v.n};}
+  if(sp.mdc){
+    const k=clamp((r-.15)/.6,0,1),L=sp.md,l=(a,c)=>a+(c-a)*k;
+    const big=b.size>100;
+    return{md:{len:l(1.05,L.len),out:l(.04,L.out),tip:l(.02,L.tip),th:l(2.8,L.th),taper:L.taper,teeth:L.teeth.map(([t,h,w])=>[t,h*k,w]),fork:big?L.fork:0},
+      n:big?'二股(超大型)':k<.35?'直線型':'湾曲型'};
+  }
+  return{md:sp.md,n:''};
+}
+/* ニジイロの筋色(翅の縦の筋)。地色とは別に遺伝する */
+const NJS=[
+ {id:'red',n:'赤',mult:1,w:50,c:'#d8342a'},
+ {id:'dgreen',n:'濃緑',mult:1.1,w:22,c:'#14502a'},
+ {id:'dred',n:'濃赤',mult:1.05,w:12,c:'#8c1c22'},
+ {id:'indigo',n:'青紫',mult:1.15,w:6,c:'#4b3fb0'},
+ {id:'magenta',n:'赤紫',mult:1.1,w:5,c:'#b02a8e'},
+ {id:'lime',n:'黄緑',mult:1.1,w:5,c:'#b8e04a'}];
+/* 地色ごとに出やすい筋色(野外・ショップ個体で55%) */
+const NJ_TYP={green:'red',red:'dred',blue:'indigo',purple:'indigo',black:'dgreen'};
+/* 地色+筋色の組み合わせの通称 */
+const NJ_NICK=[{b:'purple',s:'indigo',n:'紫紺',mult:1.25},{b:'blue',s:'indigo',n:'青系',mult:1.1}];
+const nickOf=b=>b.sp==='nijiiro'?NJ_NICK.find(x=>x.b===b.col&&x.s===b.cs)||null:null;
+function pickStripe(base){
+  const t=NJ_TYP[base];
+  if(t&&Math.random()<.55)return NJS.find(s=>s.id===t);
+  let r=Math.random()*NJS.reduce((s,c)=>s+c.w,0);
+  for(const c of NJS){if(r<c.w)return c;r-=c.w;}
+  return NJS[0];
+}
+const stripeOf=b=>b.sp==='nijiiro'?(NJS.find(s=>s.id===b.cs)||NJS[0]):null;
+const stripeMult=b=>{const s=stripeOf(b);return s?s.mult:1;};
+const NJ_OLD={rainbow:'green',green:'green',red:'red',blue:'blue',purple:'purple'};
+const MATS={
+ hinoki:{n:'檜ペレット',price:12,clean:.25,moist:1.5,d:'掃除ほぼ不要 / 乾きやすい / 繁殖できない'},
+ ferm:{n:'発酵マット',price:6,clean:1,moist:1,d:'ふつう / 材産みの種類なら繁殖OK'},
+ breed:{n:'産卵用マット',price:15,clean:1.3,moist:.7,d:'湿度を保つ / 汚れやすい / 卵+1 / 全種繁殖OK'}
+};
+const JELLY={
+ norm:{n:'ゼリー',price:4,dec:3.2,heal:1,dirt:1.2,wet:1,egg:1,d:'減りが早い / 汚れやすい'},
+ long:{n:'ロングゼリー',price:14,dec:.55,heal:1,dirt:.6,wet:.8,egg:.9,d:'腹持ち◎(約6倍) / 汚れにくい / 湿度も保つ / 卵がやや減る'}
+};
+const KIND_IDS=['mat','kin','kaw','big'];
+const KINDS={
+ mat:{n:'発酵マット',price:10,dec:2.6,g:1,d:'ふつう。減りが早い'},
+ kin:{n:'菌糸ビン(ヒラタケ)',price:25,dec:1.8,g:1,d:'オオヒラタケ菌糸。やや長持ち'},
+ kaw:{n:'菌糸ビン(カワラ)',price:30,dec:1.8,g:1,d:'カワラタケ菌糸。やや長持ち'},
+ big:{n:'大容量マットボトル',price:55,dec:.8,g:1,d:'発酵マットの大容量。とても長持ち(放置向き)'}
+};
+function fmOf(b,kind){const f=SP[b.sp].fm,v=f&&f[kind]!=null?f[kind]:1;return b.prog<b.larvaDays*.2?Math.max(v,.9):v;}
+function bestKind(id){const f=SP[id].fm||{};let k='mat',m=-1;for(const x of KIND_IDS){const v=f[x]!=null?f[x]:1;if(v>m+1e-9){m=v;k=x;}}return k;}
+const WOOD_PRICE=20,HUMID_PRICE=150,CEL_PRICE=300;
+
+/* 変異 */
+const MUN={we:'ホワイトアイ',re:'レッドアイ',gyn:'雌雄同体',dwarf:'極小個体',def:'羽化不全',giant:'大型化',mini:'小型化'};
+const MUS={we:'WE',re:'RE',gyn:'♂♀',dwarf:'極小',def:'不全',giant:'大型',mini:'小型'};
+const MUV={we:2.2,re:1.8,gyn:3.5,dwarf:.6,def:.4,giant:2.5,mini:.9};
+const MUB={we:40,re:30,gyn:80,dwarf:0,def:0,giant:60,mini:20};
+const MU_GOOD={we:1,re:1,gyn:1,giant:1};
+/* 性格(左ほど穏やか、右ほど気性が荒い) */
+const TEMN=['おだやか','のんき','ずぶとい','むじゃき','おくびょう','きまぐれ','あらくれ'];
+const temName=b=>b.tem==null?'':TEMN[Math.min(6,Math.floor(b.tem*7))];
+const JAW_PRICE=10;
+/* 種ごとの変異パラメータ(省略時は1)。bad=デメリット系 sp=特殊変異 inb=累代での上昇 val=変異種の価値 kin=菌糸での特殊変異の増え方 */
+const muP=sp=>Object.assign({bad:1,sp:1,inb:1,val:1,kin:1},sp.mu||{});
+
+/* 天気・季節 */
+const WX={sunny:{n:'晴れ',i:'☀️',dt:2,rh:-12},cloudy:{n:'くもり',i:'⛅',dt:0,rh:0},rain:{n:'雨',i:'🌧️',dt:-3,rh:25},
+  hot:{n:'猛暑',i:'🔥',dt:5,rh:-18},cold:{n:'寒波',i:'🥶',dt:-5,rh:-8}};
+const SEAS=['春','夏','秋','冬'];
+
+/* イベント */
+const CY=60,COPEN=20;
+const CTS=['okuwa','nokogiri','hirata','kokuwa','miyama','girafa','nijiiro','papuakin','ougon','boileau','speciosus','didieri','tarandus','yamatosabi','oberthuri','westwoodii'];
+const NPCN=['タカシ','ミサキ','ケンタ','ユウコ','ダイスケ','ハルカ','ソウタ','アヤ'];
+const GCY=30,GOPEN=10,GC_PRICE=30,GC_MAX=6;
+const GTH=[
+ {n:'国産クワガタ祭',d:'身近な国産種が中心。ヤマトサビも入っています。',w:[['kokuwa',24],['nokogiri',22],['hirata',18],['miyama',14],['okuwa',10],['yamatosabi',12]]},
+ {n:'シカクワガタ特集',d:'シカクワガタの仲間が勢ぞろい。ウエストウッディはごく稀。',w:[['didieri',22],['speciosus',24],['boileau',22],['oberthuri',18],['westwoodii',4]]},
+ {n:'金属光沢・ツヤフェア',d:'光り物とツヤ系。カワラ菌糸が必要な種も混じります。',w:[['nijiiro',24],['papuakin',28],['ougon',12],['tarandus',9],['okuwa',14],['oberthuri',14]]},
+ {n:'大型種・カワラ菌糸の部',d:'大型になる種が多め。カワラ菌糸を用意して挑もう。',w:[['girafa',24],['hirata',18],['okuwa',14],['tarandus',16],['ougon',10],['nijiiro',15],['westwoodii',3]]},
+ {n:'ミックス大放出',d:'全種類が入った福袋。',w:[['kokuwa',16],['yamatosabi',10],['nokogiri',14],['hirata',12],['miyama',10],['okuwa',7],['girafa',6],['papuakin',6],['nijiiro',4],['didieri',4],['speciosus',4],['boileau',3],['oberthuri',3],['ougon',2],['tarandus',2],['westwoodii',1]]}
+];
+const RANKV={C:0,B:1,A:2,S:3};
+
+/* パッチノート(新しい順) */
+const PATCH=[
+ {v:'3.2',d:'2026-10',t:'種ごとの個性とワインセラーの見直し',g:[
+  ['売値',[
+   '色虫以外の売値を、種類の珍しさ(ショップ価格)と大きさで決めるようにしました。',
+   'ミヤマ・ディディエール・ウエストウッディ・オウゴンオニ・タランドゥスなどの低温種と、ノコギリ・オオクワ・ギラファは、大型ほど売値が大きく跳ね上がります。']],
+  ['変異',[
+   '変異の起きやすさと、変異した個体の価値が種類ごとに変わりました。',
+   'コクワ・ヤマトサビは変異しにくいかわりに、変異した個体の価値が高くなりました。',
+   'ニジイロはホワイトアイなどが出やすいかわりに、価値は控えめです。',
+   'パプアキン・オウゴンオニは羽化不全などが起きやすく、ホワイトアイなどは出にくくなりました。タランドゥスはその中間です。',
+   '菌糸ビンで育てると、羽化不全などとホワイトアイなどの両方が起きやすくなります。',
+   '新しい変異「大型化」(コクワ)と「小型化」(オオクワ)を追加しました。']],
+  ['ニジイロ',[
+   '地色と筋色の組み合わせに通称がつきました。紫地+青紫筋は「紫紺」、青地+青紫筋は「青系」として評価が上がります。',
+   '筋色による価値の差を小さくしました。価値の主役は地色と組み合わせです。',
+   '暑さ・寒さに強く(適温19〜29°C)、汚れにくくなりました。']],
+  ['種類ごとの調整',[
+   'コクワ: 菌糸ビンでは小型化しやすくなりました。',
+   'ヤマトサビ: 菌糸ビンとの相性が悪く、幼虫が落ちることがあります。涼しい環境を好みます。寿命が少し延びました。',
+   'ヒラタ: 寿命が少し延びました。',
+   'ミヤマ: 羽化後の休眠が長く(約40日)、そのかわり休眠明けから成熟までが短くなりました。',
+   'ギラファ: 菌糸ビンで大きく育ち、マットでは中型止まりに。幼虫期間が長くなりました。',
+   'シカクワガタの仲間: 休眠が長くなり(約半年)、汚れにくくなりました。',
+   'ボイレアウ: 暑さに強くなり、マットでやや大きく育ちます。価格を210pt・★3に変更しました。',
+   'パプアキン: とても汚しやすくなったかわりに、湿度は減りにくくなりました。寿命は120日です。',
+   'オウゴンオニ・タランドゥス: 適温がとても狭くなりました(オウゴンオニ17〜19°C、タランドゥス18〜20°C)。ワインセラーでの管理がおすすめです。',
+   'タランドゥス: 湿度が80を超えると蒸れて体力が減ります。']],
+  ['ワインセラー・エアコン',[
+   'ワインセラーの価格を300ptに下げ、収容数を6匹に増やしました。設定温度は5〜20°Cです。',
+   'エアコンの設定温度を20〜30°Cにしました。20°Cより低い温度は、ワインセラーでしか作れません。',
+   '低温種を適温で育てると、幼虫が大きく育つようになりました。']],
+  ['休眠・産卵',[
+   'ヒラタ: 室温が15°C以下になると冬眠します。冬眠中はエサと掃除が不要で、ほとんど歳をとりませんが、繁殖はできません。霧吹きは必要です(乾きはゆっくり)。エアコンで暖めれば冬でも活動します。',
+   'ノコギリ: 産卵木がなくても、発酵マットに卵を産むようになりました(産卵用マットなら卵+1)。',
+   'ウエストウッディ: ペアリングしても卵を産まないことが多くなりました。産まなかった場合も、産卵木と産卵回数は消費します。']],
+  ['幼虫の暴れ・オオクワ',[
+   '幼虫が暴れる(ワンダリング)ようになりました。暴れている間は体重が減り続けます。エサを交換すると落ち着きます。',
+   '暴れやすいのは、オウゴンオニ・タランドゥス、菌糸ビンで育てたニジイロです。エサが減っていると暴れやすくなります。',
+   'オオクワ: 幼虫は季節の温度変化がないと、うまく育たないことがあります。幼虫の詳細で、これまでの温度の幅を確認できます。']],
+  ['性格・アゴ縛り',[
+   'すべての個体に性格がつきました(おだやか/のんき/ずぶとい/むじゃき/おくびょう/きまぐれ/あらくれ)。右ほど気性が荒い性格です。性格は親からも少し受け継ぎますが、体の大きさの影響のほうが大きく、小さい個体ほど穏やかになりやすいです。',
+   'ギラファ・タランドゥス・オオクワ・ヒラタ・シカクワガタの仲間は、ペアリングのときにオスがメスを傷つけることがあります。メスがけがをすると産卵数が減り(元には戻りません)、最悪の場合は死んでしまいます。気性の荒いオス、大きいオスほど危険です。',
+   'オスの詳細から「アゴ縛り」ができるようになりました(10pt)。揺れるゲージを真ん中で止めれば成功です。アゴ縛り中は事故が起きませんが、解くまでオスの寿命が早く減ります。ペアリングが終わったら解いてあげよう。']],
+  ['見た目',[
+   'ノコギリの体色に、赤茶〜焦げ茶の個体差がつきました(親から受け継ぎます)。',
+   'ノコギリの大あごは大きさで形が変わります(原名型・カンチ型・水牛型)。',
+   'ギラファの大あごは大きくなるほど湾曲し、100mmを超えると先が二股になります。',
+   'オーベルチュールの体色に真紅〜黒の個体差がつき、艶(並艶〜鏡面艶)で評価されるようになりました。コンテストは艶部門になります。',
+   'オウゴンオニは湿度で体色が変わります(湿度が高いと茶色寄り、低いと黄金寄り)。一時的な変化なので価値は変わりません。',
+   'オウゴンオニ・オーベルチュールの売値に、珍しさと大きさが反映されるようになりました。']],
+  ['お世話の原因',[
+   '個体の詳細に「お世話が必要な理由」を表示するようにしました(温度・エサ・湿度・清潔・体力・エサの相性・暴れ)。']],
+  ['その他',[
+   '更新情報(このページ)を追加しました。',
+   'ホーム画面に追加して、アプリのように遊べるようになりました(電波がなくても起動できます)。',
+   'ショップの「データ」から、セーブの書き出し・読み込みができるようになりました(端末やURLの引っ越し用)。',
+   '飼育棚のタイルを長押し(パソコンはドラッグ)で持ち上げて、並び替えや別の棚・ワインセラーへの移動ができるようにしました。',
+   'ゼリー・霧吹き・掃除のボタンを、それぞれのゲージの右に移しました。湿度ゲージは蒸れの基準を超えたときも赤くなります。',
+   'アプリを閉じている間のできごとを、戻ったときに「留守中のできごと」としてまとめて表示するようにしました(お世話が必要な個体へすぐ移動できます)。']]]},
+ {v:'3.1',d:'2026-10',t:'ニジイロの地色と筋色',g:[
+  ['ニジイロ',[
+   'ニジイロの体色を「地色」と「筋色」の2つに分けました。それぞれ親から遺伝します。',
+   '以前の「虹色」は、緑地・赤筋になりました。']]]}
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function wpick(list){let r=Math.random()*list.reduce((s,w)=>s+w[1],0);for(const w of list){if(r<w[1])return w[0];r-=w[1];}return list[0][0];}
+const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+const layName=sp=>sp.lay==='wood'?'材産み':sp.lay==='nowood'?'マット産み(材不要)':'マット産み';
+const hasMu=(b,c)=>(b.mu||[]).includes(c);
+const muMult=b=>{const v=muP(SP[b.sp]).val;return(b.mu||[]).reduce((a,c)=>a*(MU_GOOD[c]?1+(MUV[c]-1)*v:MUV[c]),1);};
+
+/* ---------- audio (WebAudioで合成。外部ファイルなし) ---------- */
+const Aud={ctx:null,sfxG:null,bgmG:null,timer:0,nextT:0,beat:0,mi:3};
+const BEAT=.72;
+const PENTA=[293.66,329.63,369.99,440,493.88,587.33,659.25,739.99];
+const PADS=[[146.83,220,369.99],[196,293.66,493.88],[123.47,185,293.66],[110,164.81,220]];
+function audGain(){
+  if(!Aud.ctx||!S)return;
+  const t=Aud.ctx.currentTime;
+  Aud.sfxG.gain.setTargetAtTime(S.audio.sfx?.9:0,t,.05);
+  Aud.bgmG.gain.setTargetAtTime(S.audio.bgm?.8:0,t,.3);
+}
+function iosUnlock(){
+  try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback';}catch(e){}
+  if(Aud.silent){if(Aud.silent.paused){try{Aud.silent.play().catch(()=>{});}catch(e){}}return;}
+  const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(!ios||navigator.audioSession)return;
+  try{
+    const sr=8000,n=sr,buf=new ArrayBuffer(44+n),v=new DataView(buf);
+    const w=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i));};
+    w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+    v.setUint32(24,sr,true);v.setUint32(28,sr,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);
+    for(let i=0;i<n;i++)v.setUint8(44+i,128);
+    const a=new Audio(URL.createObjectURL(new Blob([buf],{type:'audio/wav'})));
+    a.loop=true;a.volume=.01;Aud.silent=a;a.play().catch(()=>{});
+  }catch(e){}
+}
+function audInit(){
+  if(!Aud.ctx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    try{Aud.ctx=new AC();}catch(e){return;}
+    Aud.sfxG=Aud.ctx.createGain();Aud.bgmG=Aud.ctx.createGain();
+    Aud.sfxG.connect(Aud.ctx.destination);Aud.bgmG.connect(Aud.ctx.destination);
+    audGain();
+    Aud.nextT=Aud.ctx.currentTime+.3;
+    Aud.timer=setInterval(bgmTick,300);
+    Aud.ctx.onstatechange=()=>{if(Aud.ctx.state==='running'){audGain();Aud.nextT=Aud.ctx.currentTime+.2;}};
+  }
+  if(Aud.ctx.state!=='running'){try{const p=Aud.ctx.resume();if(p&&p.catch)p.catch(()=>{});}catch(e){}}
+  iosUnlock();
+}
+function tone(dest,f,t0,dur,type,vol,o){
+  const c=Aud.ctx;o=o||{};
+  const osc=c.createOscillator(),g=c.createGain();
+  osc.type=type||'sine';
+  osc.frequency.setValueAtTime(f,t0);
+  if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to,t0+dur);
+  const att=o.att||.01;
+  g.gain.setValueAtTime(.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol,t0+att);
+  g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  osc.connect(g);g.connect(dest);
+  osc.start(t0);osc.stop(t0+dur+.05);
+}
+function noise(dest,t0,dur,vol,fq){
+  const c=Aud.ctx,n=Math.max(1,Math.floor(c.sampleRate*dur));
+  const buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+  const src=c.createBufferSource();src.buffer=buf;
+  const fl=c.createBiquadFilter();fl.type='highpass';fl.frequency.value=fq||3000;
+  const g=c.createGain();
+  g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+.04);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  src.connect(fl);fl.connect(g);g.connect(dest);
+  src.start(t0);
+}
+function bgmTick(){
+  const c=Aud.ctx;
+  if(!c||c.state!=='running'||!S||!S.audio.bgm)return;
+  if(Aud.nextT<c.currentTime)Aud.nextT=c.currentTime+.1;
+  while(Aud.nextT<c.currentTime+1.5){bgmBeat(Aud.nextT);Aud.nextT+=BEAT;}
+}
+function bgmBeat(t){
+  const n=Aud.beat++,d=Aud.bgmG;
+  if(n%8===0){
+    const p=PADS[((n/8)|0)%4];
+    p.forEach((f,i)=>tone(d,f,t+i*.06,BEAT*8,'sine',.045,{att:1.6}));
+  }
+  if(Math.random()<.6){
+    Aud.mi=clamp(Aud.mi+(Math.random()<.5?-1:1)*(Math.random()<.3?2:1),0,PENTA.length-1);
+    tone(d,PENTA[Aud.mi],t,1.5,'triangle',.05);
+  }
+  if(Math.random()<.22){
+    const j=clamp(Aud.mi+(Math.random()<.5?-2:2),0,PENTA.length-1);
+    tone(d,PENTA[j],t+BEAT/2,1.1,'sine',.03);
+  }
+  if(Math.random()<.4){
+    const base=4200+Math.random()*300,off=Math.random()*.3;
+    for(let k=0;k<3;k++)tone(d,base,t+off+k*.075,.045,'sine',.012);
+  }
+}
+const lastSfx={};
+function sfx(name){
+  const c=Aud.ctx;
+  if(!c||!S||!S.audio.sfx)return;
+  if(c.state!=='running'){try{c.resume();}catch(e){}return;}
+  const now=c.currentTime;
+  if(lastSfx[name]&&now-lastSfx[name]<.15)return;
+  lastSfx[name]=now;
+  const d=Aud.sfxG,t=now+.01;
+  switch(name){
+    case'tap':tone(d,660,t,.07,'triangle',.18);break;
+    case'open':tone(d,440,t,.06,'triangle',.15);tone(d,587,t+.05,.08,'triangle',.15);break;
+    case'feed':tone(d,523,t,.12,'triangle',.22);tone(d,659,t+.09,.16,'triangle',.22);break;
+    case'jelly':tone(d,784,t,.1,'sine',.22);tone(d,988,t+.08,.18,'sine',.22);break;
+    case'mist':noise(d,t,.45,.22,3500);break;
+    case'clean':[1047,1319,1568,2093].forEach((f,i)=>tone(d,f,t+i*.06,.18,'sine',.14));break;
+    case'buy':tone(d,1319,t,.08,'square',.09);tone(d,1760,t+.07,.22,'square',.09);break;
+    case'sell':[880,1109,1319,1760].forEach((f,i)=>tone(d,f,t+i*.07,.2,'triangle',.18));break;
+    case'err':tone(d,220,t,.18,'sawtooth',.1,{to:150});break;
+    case'hatch':[523,659,784].forEach((f,i)=>tone(d,f,t+i*.09,.25,'sine',.2));break;
+    case'emerge':[523,659,784,1047,1319].forEach((f,i)=>tone(d,f,t+i*.1,.4,'triangle',.2));break;
+    case'lay':tone(d,880,t,.8,'sine',.2);tone(d,1320,t+.04,.6,'sine',.12);break;
+    case'pair':tone(d,659,t,.2,'sine',.2);tone(d,784,t+.14,.3,'sine',.2);break;
+    case'die':tone(d,392,t,.8,'sine',.2,{to:185});break;
+    case'catch':[660,880,1100].forEach((f,i)=>tone(d,f,t+i*.07,.15,'triangle',.2));break;
+    case'miss':tone(d,330,t,.2,'sine',.15,{to:260});break;
+  }
+}
+
+
+
+/* ---------- state ---------- */
+let S=null,tab='shelf',sheetId=null,confirmAct=null,lastSig='',actsKey='',GID=0,evSub='req',dexSub='dex';
+
+function newShelf(name){return{name,slots:6,rt:22,rh:55,humid:false,humidOwn:false,ac:{on:false,t:23}};}
+function base(){return {v:5,day:1,coins:100,speed:1,serial:1,beetles:[],dex:{},log:[],logN:0,catchAt:0,hint:true,saved:Date.now(),
+  wood:2,audio:{bgm:true,sfx:true},shelves:[newShelf('棚1')],cur:0,ped:{},
+  out:18,oh:60,wx:'cloudy',wd:1,elec:0,cel:{own:false,on:true,t:15},pn:PATCH[0].v,
+  reqs:[],qid:1,ct:{n:0,entry:null,done:false},ctLast:null,ctHist:[],gc:{n:0,used:0},gLast:null,
+  bl:{},blN:1,nb:1,spec:[],ach:{},stat:{emerged:0,maxGen:0,maxInb:0,req:0,cw1:0,cw3:0,gacha:0,mu:{}}};}
+function load(){
+  try{
+    for(const k of [KEY,KEY2,KEY1]){
+      const j=localStorage.getItem(k);
+      if(j){const o=JSON.parse(j);if(k===KEY1)o.v=1;else if(k===KEY2)o.v=Math.min(o.v||2,2);return o;}
+    }
+  }catch(e){}
+  return null;
+}
+let saveLock=false;
+function save(){if(!S||saveLock)return;S.saved=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function pedOf(b){return{id:b.id,sp:b.sp,sx:b.sex,g:b.gen,wd:!!b.wd,pa:b.pa||0,ma:b.ma||0,sz:b.size||0,col:b.col,cs:b.cs||null,mu:(b.mu||[]).slice(),f:b.stage==='dead'?'d':'a',mk:b.mark||'',mc:b.mc==null?-1:b.mc,tn:b.tone==null?null:b.tone,d:Math.floor(S.day),o:b.origin||(b.wd?'wd':(b.pa||b.ma)?'bred':'unk'),ib:b.inb||0,ct:[],e:0,gr:b.grp||'',bl:''};}
+function pedSync(b){const p=S.ped[b.id];if(!p)return;p.sz=b.size||0;p.col=b.col;p.cs=b.cs||null;p.mu=(b.mu||[]).slice();p.mk=b.mark||'';p.mc=b.mc;p.g=b.gen;p.wd=!!b.wd;p.ib=b.inb||0;if(b.tone!=null)p.tn=b.tone;}
+function pedF(b,f){const p=S.ped[b.id];if(p){p.f=f;if(f!=='a'&&!p.e)p.e=Math.floor(S.day);}}
+function migrate(){
+  const B=base(),wasV=S.v;
+  if(!S.shelves){
+    const sh=newShelf('棚1');
+    sh.slots=S.slots||6;sh.rt=S.rt!=null?S.rt:clamp(+S.temp||23,10,30);sh.rh=S.rh!=null?S.rh:55;
+    sh.humid=!!S.humid;sh.humidOwn=!!S.humidOwn;
+    if(S.ac)sh.ac={on:!!S.ac.on,t:S.ac.t||23};
+    S.shelves=[sh];
+  }
+  const old1=S.v<2;
+  if(S.pn===undefined)S.pn='';
+  for(const k of Object.keys(B)){if(S[k]===undefined)S[k]=B[k];}
+  if(old1){
+    S.wd=Math.floor(S.day);
+    S.ct={n:Math.floor((S.day-1)/CY),entry:null,done:((S.day-1)%CY)>=COPEN};
+    S.gc={n:Math.floor((S.day-1)/GCY),used:0};
+  }
+  for(const k of['temp','hc','slots','ac','humid','humidOwn','rt','rh'])delete S[k];
+  for(const sh of S.shelves)sh.ac.t=clamp(sh.ac.t,AC_MIN,AC_MAX);
+  S.cel.t=clamp(S.cel.t,CEL_MIN,CEL_MAX);
+  S.v=5;S.cur=clamp(S.cur||0,0,S.shelves.length-1);
+  S.stat=Object.assign(base().stat,S.stat||{});S.stat.mu=S.stat.mu||{};
+  const og=new Set(COLS.ougon.map(c=>c.id));
+  /* 体色の幅がある種: 既存個体には個体IDから tone を補う */
+  for(const b of S.beetles)if(SP[b.sp].cr&&b.tone==null){b.tone=clamp((seed(b.id*131+7)()+seed(b.id*977+3)())/2,0,1);if(S.ped[b.id])S.ped[b.id].tn=b.tone;}
+  /* オーベルチュールに艶を補う */
+  for(const b of S.beetles)if(b.sp==='oberthuri'){if(!og.has(b.col))b.col=pickCol('oberthuri').id;if(b.fcol&&!og.has(b.fcol))b.fcol=null;}
+  for(const x of S.spec)if(x.sp==='oberthuri'&&!og.has(x.col))x.col=pickCol('oberthuri').id;
+  for(const id in S.ped){const p=S.ped[id];if(p.sp==='oberthuri'&&!og.has(p.col))p.col='g1';}
+  for(const b of S.beetles){
+    b.mat=b.mat||'ferm';b.jk=b.jk||'norm';
+    if(b.col===undefined)b.col=null;
+    if(b.fcol===undefined)b.fcol=null;
+    if(!b.mu)b.mu=b.deformed?['def']:[];
+    delete b.deformed;
+    if(b.gen===undefined)b.gen=1;
+    if(b.wd===undefined)b.wd=false;
+    if(b.inb===undefined)b.inb=0;
+    if(!b.anc)b.anc={};
+    if(b.gp===undefined)b.gp=.5;
+    if(!b.pm)b.pm=[];
+    if(b.pa===undefined)b.pa=0;
+    if(b.ma===undefined)b.ma=0;
+    if(b.mate===undefined)b.mate=null;
+    b.cel=!!b.cel;b.dT=b.dT||0;
+    if(b.tem==null&&(b.stage==='adult'||b.stage==='dead'))b.tem=temRoll(b);
+    b.sh=b.sh||0;if(b.sh>=S.shelves.length)b.sh=0;
+    b.mark=b.mark||'';b.mc=b.mc==null?-1:b.mc;b.ps=b.ps||0;
+    if(b.sp==='ougon'){
+      if(!og.has(b.col))b.col=pickCol('ougon').id;
+      if(b.fcol&&!og.has(b.fcol))b.fcol=null;
+    }
+  }
+  for(const x of S.spec)if(x.sp==='ougon'&&!og.has(x.col))x.col=pickCol('ougon').id;
+  if(S.dex.ougon){S.dex.ougon.cols={};for(const b of S.beetles)if(b.sp==='ougon'&&b.stage==='adult')S.dex.ougon.cols[b.col]=1;}
+  /* v5: ニジイロを 地色+筋色 に移行(旧「虹色」は 緑地+赤筋) */
+  if(wasV<5){
+    const nj=o=>{
+      if(!o||o.sp!=='nijiiro')return;
+      const old=o.col;
+      o.col=NJ_OLD[old]||'green';
+      if(!o.cs||!NJS.some(s=>s.id===o.cs))o.cs=old==='rainbow'?'red':pickStripe(o.col).id;
+    };
+    for(const b of S.beetles){
+      nj(b);
+      if(b.sp==='nijiiro'){
+        b.fcol=b.fcol?(NJ_OLD[b.fcol]||'green'):null;
+        b.fcs=null;
+        if(b.mate&&b.mate.col!==undefined){b.mate.col=NJ_OLD[b.mate.col]||'green';b.mate.cs=b.mate.cs||pickStripe(b.mate.col).id;}
+      }
+    }
+    for(const x of S.spec)nj(x);
+    for(const p of Object.values(S.ped))nj(p);
+    if(S.dex.nijiiro){
+      const d=S.dex.nijiiro,oc=d.cols||{};d.cols={};
+      for(const k in oc)d.cols[NJ_OLD[k]||'green']=1;
+      d.cs={};
+      for(const b of S.beetles)if(b.sp==='nijiiro'&&b.stage==='adult'){d.cols[b.col]=1;d.cs[b.cs]=1;}
+    }
+    for(const r of S.reqs||[])if(r.t==='col'&&r.sp==='nijiiro'&&!r.rk)r.rk='B';
+  }
+  for(const b of S.beetles)if(b.sp==='nijiiro'&&!b.cs)b.cs=pickStripe(b.col).id;
+  if(S.ctLast){
+    const L=S.ctLast;
+    if(!L.sp)L.sp=CTS[(L.n||0)%CTS.length];
+    if(L.entered===undefined)L.entered=!L.none;
+    if(!L.board||!L.board.length){L.board=[];L.none=true;}
+  }
+  if(!Array.isArray(S.ctHist))S.ctHist=[];
+  if(!S.ct||typeof S.ct!=='object')S.ct={n:Math.floor((S.day-1)/CY),entry:null,done:false};
+  if(wasV<4){
+    for(const b of S.beetles){
+      if(b.stage==='adult'&&b.adultAge>=10){b.rd=true;b.rp=true;}
+      if(b.stage==='larva'&&b.prog<b.larvaDays*.88){
+        const f=SP[b.sp].fm;
+        if(f&&f[b.kind]===0){const k=bestKind(b.sp);log(`${bname(b)}は${KINDS[b.kind].n}が合わないので、${KINDS[k].n}に入れ替えた`,'good');b.kind=k;b.food=100;}
+      }
+    }
+  }
+  for(const b of S.beetles){if(!S.ped[b.id])S.ped[b.id]=pedOf(b);}
+  if(S.ped[1]&&S.ped[2]&&S.ped[1].sp==='kokuwa'&&S.ped[2].sp==='kokuwa'&&S.ped[1].wd&&S.ped[2].wd&&!S.ped[1].gr&&!S.ped[2].gr){S.ped[1].gr='start';S.ped[2].gr='start';}
+  for(const x of S.spec){
+    if(!S.ped[x.id])S.ped[x.id]={id:x.id,sp:x.sp,sx:x.sex,g:x.gen,wd:!!x.wd,pa:x.pa||0,ma:x.ma||0,sz:x.size,col:x.col,cs:x.cs||null,mu:(x.mu||[]).slice(),f:'p',mk:'',mc:-1,d:x.day};
+    else S.ped[x.id].f='p';
+  }
+}
+function fresh(){
+  S=base();
+  const o={wd:true,gen:0,gp:.6,adultAge:14,q:.72,food:80,moist:80,grp:'start',rd:true,rp:true};
+  const m=mk('kokuwa','m','adult',Object.assign({size:41.2},o));
+  const f=mk('kokuwa','f','adult',Object.assign({size:26.4},o));
+  S.beetles.push(m,f);
+  seen('kokuwa','m',m.size);seen('kokuwa','f',f.size);
+}
+function pickCol(id){
+  const l=COLS[id];let r=Math.random()*l.reduce((s,c)=>s+c.w,0);
+  for(const c of l){if(r<c.w)return c;r-=c.w;}
+  return l[0];
+}
+function mk(spId,sex,stage,o){
+  const sp=SP[spId];
+  const b={id:S.serial++,sp:spId,sex,stage,prog:0,age:0,w:0,food:100,kind:'mat',hp:100,
+    larvaDays:sp.larva*rnd(.88,1.12),q:0,size:0,moist:80,clean:100,adultAge:0,life:sp.life*rnd(.9,1.1),
+    mated:false,eggTimer:0,clutches:0,cool:0,mu:[],cause:'',natural:false,
+    mat:'ferm',jk:'norm',col:null,fcol:null,cs:null,fcs:null,
+    gen:1,wd:false,inb:0,anc:{},gp:rnd(.35,.7),pm:[],pa:0,ma:0,mate:null,cel:false,dT:0,
+    sh:S.cur,mark:'',mc:-1,ps:0};
+  b.w=sp.peak*(sex==='m'?1:.5)*.02;
+  Object.assign(b,o||{});
+  if(sp.iri&&!b.col)b.col=pickCol(spId).id;
+  if(spId==='nijiiro'&&!b.cs)b.cs=pickStripe(b.col).id;
+  if(sp.cr&&b.tone==null)b.tone=toneRoll();
+  if(b.stage==='adult'&&b.tem==null)b.tem=temRoll(b,b.ptem);
+  S.ped[b.id]=pedOf(b);
+  return b;
+}
+const byId=id=>S.beetles.find(b=>b.id===id);
+const genLabel=b=>b.wd?'WD':'F'+b.gen;
+const bname=b=>SP[b.sp].s+(b.sex==='m'?'♂':'♀')+' #'+b.id;
+const pkOf=b=>SP[b.sp].peak*(b.sex==='m'?1:.5);
+const SH=()=>S.shelves[S.cur];
+const shOf=b=>S.shelves[b.sh]||S.shelves[0];
+const freeIn=i=>S.shelves[i].slots-S.beetles.filter(b=>b.sh===i).length;
+const freeAll=()=>S.shelves.reduce((s,_,i)=>s+freeIn(i),0);
+const free=()=>freeAll();
+function placeShelf(pref){
+  if(pref!=null&&S.shelves[pref]&&freeIn(pref)>0)return pref;
+  if(freeIn(S.cur)>0)return S.cur;
+  for(let i=0;i<S.shelves.length;i++)if(freeIn(i)>0)return i;
+  return -1;
+}
+function addBeetle(b,pref){const i=placeShelf(pref);if(i<0)return false;b.sh=i;S.beetles.push(b);return true;}
+const MARKS=['','★','●','▲','■','♥','◆','♣'];
+const MCOLS=['#e5483a','#f08a24','#e8c21a','#4fae3a','#22a6b3','#3b6fd9','#8a4fd0','#e060a8','#8a8a8a'];
+const MCN=['赤','橙','黄','緑','水','青','紫','桃','灰'];
+const PF={a:'飼育中',d:'死亡',p:'標本',o:'売却',r:'手放し',v:'納品',b:'埋葬'};
+/* 血統ノート: 1冊10ページ・1血統=1ページ */
+const NB_PAGES=10,NB_MAX=5,NB_PRICE=60;
+const nbCap=()=>S.nb*NB_PAGES;
+function syncLines(){
+  const par=new Map();
+  const add=x=>{if(!par.has(x))par.set(x,x);};
+  const find=x=>{let r=x;while(par.get(r)!==r)r=par.get(r);while(par.get(x)!==r){const n=par.get(x);par.set(x,r);x=n;}return r;};
+  const uni=(a,b)=>{add(a);add(b);const ra=find(a),rb=find(b);if(ra!==rb)par.set(ra,rb);};
+  const grp=new Map();
+  for(const p of Object.values(S.ped)){
+    add(p.id);
+    if(p.pa)uni(p.id,p.pa);
+    if(p.ma)uni(p.id,p.ma);
+    if(p.gr){if(grp.has(p.gr))uni(p.id,grp.get(p.gr));else grp.set(p.gr,p.id);}
+  }
+  const comps=new Map();
+  for(const x of par.keys()){const r=find(x);if(!comps.has(r))comps.set(r,[]);comps.get(r).push(x);}
+  const lines=[];
+  for(const ids of comps.values()){
+    const mem=ids.filter(id=>S.ped[id]);
+    if(!mem.length)continue;
+    const spec=mem.filter(id=>S.ped[id].f==='p');
+    const ks=[...new Set(mem.map(id=>S.ped[id].bl).filter(k=>k&&S.bl[k]))];
+    if(!spec.length&&!ks.length)continue;
+    let key;
+    if(!ks.length){key='L'+(S.blN++);S.bl[key]={name:'',pg:0,sp:S.ped[mem[0]].sp};}
+    else if(ks.length===1)key=ks[0];
+    else{
+      ks.sort((a,b)=>{const pa=S.bl[a].pg||1e9,pb=S.bl[b].pg||1e9;return pa-pb||(+a.slice(1))-(+b.slice(1));});
+      key=ks[0];
+      const names=[...new Set(ks.map(k=>S.bl[k].name).filter(Boolean))];
+      S.bl[key].name=names.join('・').slice(0,12);
+      ks.slice(1).forEach(k=>delete S.bl[k]);
+    }
+    mem.forEach(id=>{S.ped[id].bl=key;});
+    lines.push({key,sp:S.ped[mem[0]].sp,mem,spec});
+  }
+  const live=new Set(lines.map(l=>l.key));
+  Object.keys(S.bl).forEach(k=>{if(!live.has(k))delete S.bl[k];});
+  const act=lines.filter(l=>l.spec.length).sort((a,b)=>(+a.key.slice(1))-(+b.key.slice(1)));
+  lines.filter(l=>!l.spec.length).forEach(l=>{S.bl[l.key].pg=0;});
+  const used=new Set(act.map(l=>S.bl[l.key].pg).filter(Boolean));
+  for(const l of act){
+    const r=S.bl[l.key];if(r.pg)continue;
+    for(let i=1;i<=nbCap();i++)if(!used.has(i)){r.pg=i;used.add(i);break;}
+  }
+  return act;
+}
+function seen(spId,sex,size){
+  const d=S.dex[spId]||(S.dex[spId]={bm:0,bf:0,n:0});
+  if(size){const k=sex==='m'?'bm':'bf';if(size>d[k])d[k]=size;}
+}
+let awayCap=null,lastAway=null;
+function log(t,k){if(awayCap&&awayCap.length<400)awayCap.push({d:Math.floor(S.day),t,k:k||''});S.log.unshift({d:Math.floor(S.day),t,k:k||''});if(S.log.length>40)S.log.length=40;S.logN++;}
+
+/* ---------- 環境 ---------- */
+const seasonDay=d=>((Math.floor(d)-1)+15)%YEAR;
+const seasonIdx=d=>Math.floor(seasonDay(d)/30);
+const seasonOf=d=>SEAS[seasonIdx(d)];
+const baseOut=d=>17.5+9.5*Math.sin(2*Math.PI*(seasonDay(d)-15)/YEAR);
+const celOn=()=>S.cel.own&&S.cel.on;
+const cellCount=()=>S.beetles.filter(b=>b.cel&&b.stage!=='dead').length;
+const roomT=sh=>sh.rt-(sh.humid?1:0);
+const caseT=b=>(b.cel&&celOn())?S.cel.t:roomT(shOf(b))+(b.dT||0);
+const rtTarget=sh=>sh.ac.on?sh.ac.t:S.out*.6+8;
+const rhTarget=sh=>clamp(S.oh+(sh.ac.on?-12:0)+(sh.humid?14:0),25,95);
+const acCost=sh=>.6+.15*Math.abs(S.out-sh.ac.t);
+const celCost=()=>1.2+.05*Math.abs(S.out*.6+8-S.cel.t);
+const shPower=sh=>(sh.ac.on?acCost(sh):0)+(sh.humid?.25:0);
+const powerCost=()=>S.shelves.reduce((s,sh)=>s+shPower(sh),0)+(celOn()?celCost():0);
+function tstress(sp,t){
+  const[lo,hi]=sp.pref,[tl,th]=sp.tol;
+  if(t<lo)return(lo-t)/(lo-tl);
+  if(t>hi)return(t-hi)/(th-hi);
+  return 0;
+}
+const drainOf=s=>s<.3?0:s<1?(s-.3)*1.4:1+(s-1)*4;
+function pickWx(prev){
+  const se=seasonIdx(S.day),w={sunny:4,cloudy:3,rain:3,hot:0,cold:0};
+  if(se===1)w.hot=2;
+  if(se===3){w.cold=2;w.rain=1;}
+  w[prev]=(w[prev]||0)+3;
+  return wpick(Object.entries(w).filter(e=>e[1]>0));
+}
+function shutPower(){
+  S.shelves.forEach(sh=>{sh.ac.on=false;sh.humid=false;});S.cel.on=false;S.elec=0;
+  log('電気代が足りず、エアコン・加湿器・ワインセラーが止まった','bad');
+  toast('電気代が足りず、機器が止まりました');sfx('err');
+}
+function dayTick(){
+  const dd=Math.floor(S.day);
+  S.wx=pickWx(S.wx);const W=WX[S.wx];
+  S.out=Math.round((baseOut(S.day)+W.dt+rnd(-1.2,1.2))*10)/10;
+  S.oh=clamp(Math.round(60+W.rh+rnd(-5,5)),20,98);
+  const pc=powerCost();
+  if(pc>0){
+    S.elec+=pc;
+    while(S.elec>=1){
+      if(S.coins>=1){S.coins--;S.elec--;}
+      else{shutPower();break;}
+    }
+  }
+  /* 依頼 */
+  S.reqs=S.reqs.filter(r=>{if(r.due<dd){log(`依頼「${reqTitle(r)}」の期限が切れた`,'bad');return false;}return true;});
+  if(S.reqs.length<3&&Math.random()<.18){const q=newReq();if(q){S.reqs.push(q);log(`新しい依頼が届いた: ${reqTitle(q)}`);}}
+  /* コンテスト */
+  const n=Math.floor((dd-1)/CY),cd=(dd-1)%CY;
+  if(S.ct.n!==n){S.ct={n,entry:null,done:false};log(`コンテスト開催! 「${cTitle(CTS[n%CTS.length])}」`,'good');toast('新しいコンテストが始まりました');}
+  if(cd>=COPEN&&!S.ct.done)resolveContest();
+  /* ガラポン */
+  const g=Math.floor((dd-1)/GCY);
+  if(S.gc.n!==g){S.gc={n:g,used:0};log('ガラポン大会が始まった!','good');toast('ガラポン大会が始まりました');}
+  /* 冬の来訪者 */
+  if(seasonIdx(S.day)===3&&Math.random()<.07)giftEvent();
+}
+function envStep(dt){
+  for(const sh of S.shelves){
+    sh.rt+=(rtTarget(sh)-sh.rt)*(1-Math.exp(-dt*(sh.ac.on?1:.5)));
+    sh.rh+=(rhTarget(sh)-sh.rh)*(1-Math.exp(-dt*.6));
+  }
+}
+/* ---------- 評価 ---------- */
+function colOf(b){const l=COLS[b.sp];return l?(l.find(c=>c.id===b.col)||l[0]):null;}
+/* 表示用の色名: ニジイロは「緑地・濃緑筋」、他は従来どおり */
+function colName(b){const c=colOf(b);if(!c)return'';const s=stripeOf(b),k=nickOf(b);return s?`${c.n}地・${s.n}筋${k?`(${k.n})`:''}`:c.n;}
+/* 性格の決定: 種の気性を中心に、大きさの影響を大きく、親の性格を少し */
+function temRoll(b,ptem){
+  const sp=SP[b.sp],ag=sp.ag||0,c=.22+.45*ag,r=ratioOf(b);
+  const se=(r-.5)*(b.sex==='m'?.5:.2);
+  const pv=ptem==null?c:ptem;
+  return clamp(.75*(c+se)+.25*pv+rnd(-.14,.14),0,.999);
+}
+function ratioOf(b){const sp=SP[b.sp],rg=b.sex==='m'?sp.m:sp.f;return clamp((b.size-rg[0])/(rg[1]-rg[0]),0,1);}
+function score(b){const c=colOf(b),k=nickOf(b);return c?(.5+ratioOf(b))*c.mult*stripeMult(b)*(k?k.mult:1):0;}
+/* 非色虫: 体長×0.5×希少度×サイズ補正。低温種・大型種は補正の曲線が急 */
+const rarOf=sp=>1+sp.price/60;
+function sizeCorr(b){const sp=SP[b.sp],r=ratioOf(b);return sp.cold||sp.steep?.35+1.65*r*r*r:.5+1.5*r*r;}
+function value(b){
+  const sp=SP[b.sp];
+  /* 艶で評価する種は、希少度の式×艶の倍率 */
+  const v=sp.gloss?b.size*.5*rarOf(sp)*sizeCorr(b)*colOf(b).mult:sp.iri?b.size*score(b)*.9:b.size*.5*rarOf(sp)*sizeCorr(b);
+  return Math.max(1,Math.round(v*muMult(b)));
+}
+function lifeF(b){
+  if(b.stage!=='adult')return 1;
+  const r=clamp(1-b.adultAge/b.life,0,1);
+  return r>=.85?1:.12+.88*(r/.85);
+}
+const saleValue=b=>Math.max(1,Math.round(value(b)*lifeF(b)));
+function rank(b){const s=score(b);return s>=2.6?'S':s>=1.8?'A':s>=1.2?'B':'C';}
+
+/* ---------- toast ---------- */
+let toastT=0;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2800);}
+
+/* ---------- simulation ---------- */
+function calcSize(sp,sex,q,gp){
+  const r=sex==='m'?sp.m:sp.f;
+  const qq=clamp(q*(.85+.3*(gp==null?.5:gp)),0,1);
+  const v=r[0]+(r[1]-r[0])*Math.pow(qq,1.15)*rnd(.97,1.03);
+  return Math.round(clamp(v,r[0],r[1])*10)/10;
+}
+function die(b,cause,nat){
+  b.stage='dead';b.cause=cause;b.natural=!!nat;b.mated=false;b.cel=false;pedF(b,'d');
+  log(nat?`${bname(b)}は天寿をまっとうした`:`${bname(b)}が死んでしまった(${cause})`,nat?'':'bad');
+  toast(nat?`${bname(b)}は天寿をまっとうしました`:`${bname(b)}が死んでしまった…`);
+  sfx('die');
+}
+function causeOf(b,sx,t){
+  if(b.food<=0&&b.stage!=='pupa')return b.stage==='larva'?'エサ切れ':'エサ不足';
+  if(b.stage==='larva'&&fmOf(b,b.kind)<=.05)return'エサが合わない';
+  if(sx>=.5)return t>(SP[b.sp].pref[0]+SP[b.sp].pref[1])/2?'暑さ':'寒さ';
+  if(b.stage==='adult'){if(b.moist<=0)return'乾燥';if(b.clean<=0)return'不衛生';if(b.moist>(SP[b.sp].muggy||92))return'蒸れ';}
+  return'体調不良';
+}
+function emerge(b,sp){
+  b.stage='adult';b.prog=0;b.adultAge=0;b.hp=100;b.food=80;b.moist=80;b.clean=100;
+  const t=caseT(b),sx=tstress(sp,t),i=b.inb,rg=b.sex==='m'?sp.m:sp.f;
+  let size=calcSize(sp,b.sex,b.q,b.gp);
+  if(b.ps>0)size=Math.round(clamp(size,b.ps-30,b.ps+30)*10)/10;
+  const mu=[],R=Math.random,pe=c=>(b.pm||[]).filter(x=>x===c).length*.3;
+  const P=muP(sp),ii=i*P.inb,kf=Math.min(1,(b.kinT||0)/(b.larvaDays*.25));
+  /* 菌糸で育てると、特殊変異もデメリット系も起きやすくなる */
+  const ks=.006*kf*P.kin,kb=(sp.kinRisk||.05)*kf;
+  if(R()<(.004+ii*.05+ks)*P.sp+pe('we'))mu.push('we');
+  else if(R()<(.004+ii*.04+ks)*P.sp+pe('re'))mu.push('re');
+  if(R()<(.001+ii*.025+ks*.3)*P.sp)mu.push('gyn');
+  /* 種固有: コクワの大型化 / オオクワの小型化 */
+  if(b.sp==='kokuwa'&&R()<(.004+ii*.02+ks)*P.sp){mu.push('giant');size=Math.round((b.sex==='m'?rnd(55,62):rnd(31,35))*10)/10;}
+  else if(b.sp==='okuwa'&&R()<.008+ii*.04+kb*.1){mu.push('mini');size=Math.round((b.sex==='m'?rnd(40,45):rnd(30,34))*10)/10;}
+  else if(R()<(.003+ii*.14+kb*.15)*P.bad){mu.push('dwarf');size=Math.round(rg[0]*rnd(.62,.85)*10)/10;}
+  if(R()<(.01+ii*.22+(sx>.5?.2:0)+kb)*P.bad){mu.push('def');size=Math.round(size*.93*10)/10;}
+  b.mu=mu;b.size=size;b.tem=temRoll(b,b.ptem);pedSync(b);
+  const d=S.dex[b.sp]||(S.dex[b.sp]={bm:0,bf:0,n:0});
+  d.n++;
+  if(sp.iri){d.cols=d.cols||{};d.cols[b.col]=1;if(b.sp==='nijiiro'){d.cs=d.cs||{};d.cs[b.cs]=1;}}
+  d.mu=d.mu||{};mu.forEach(c=>{d.mu[c]=1;S.stat.mu[c]=(S.stat.mu[c]||0)+1;});
+  S.stat.emerged++;S.stat.maxGen=Math.max(S.stat.maxGen,b.gen);S.stat.maxInb=Math.max(S.stat.maxInb,b.inb);
+  const k=b.sex==='m'?'bm':'bf';
+  let reward=sp.iri?Math.round(value(b)*.35):Math.round(size*.8),note='';
+  mu.forEach(c=>{reward+=Math.round(MUB[c]*(MU_GOOD[c]?P.val:1));});
+  if(d.n===1){reward+=50;note=' 初羽化ボーナス!';}
+  else if(size>d[k]&&!mu.includes('dwarf')){reward+=30;note=' 自己ベスト更新!';}
+  if(size>d[k])d[k]=size;
+  S.coins+=reward;
+  const ex=(sp.iri?` ${colName(b)} ランク${rank(b)}`:'')+(mu.length?` [${mu.map(c=>MUN[c]).join('・')}]`:'');
+  log(`${bname(b)}(${genLabel(b)})が羽化! ${size}mm${ex} +${reward}pt${note}`,'good');
+  toast(`${bname(b)}が羽化! ${size}mm${ex} +${reward}pt`);
+  sfx('emerge');
+}
+function kinship(f,M){
+  const A=Object.assign({},M.anc),B=Object.assign({},f.anc);
+  if(M.id)A[M.id]=0;B[f.id]=0;
+  let s=99,c=0;
+  for(const id in A){
+    if(!(id in B))continue;
+    const q=A[id]+B[id];
+    if(q<s){s=q;c=1;}else if(q===s)c++;
+  }
+  return c?Math.min(.5,c*Math.pow(.5,s+1)):0;
+}
+function lay(f){
+  const sp=SP[f.sp],M=f.mate||{id:0,anc:{},inb:0,gen:0,gp:.5,ratio:.5,mu:[],size:0,mark:'',mc:-1};
+  f.mated=false;f.clutches++;f.cool=15;f.mate=null;
+  /* ウエストウッディ: 産まないことが多い(産卵木と産卵回数は消費) */
+  if(sp.nolay&&Math.random()<sp.nolay){log(`${bname(f)}は産まなかった…`,'bad');toast(`${bname(f)}は卵を産みませんでした`);return;}
+  let n=rnd(2,5)*(f.hp>=60?1:.6)*(f.inj?.6:1)*(JELLY[f.jk]||JELLY.norm).egg+(f.mat==='breed'?1:0);
+  n=Math.max(1,Math.round(n));
+  const k=Math.min(n,freeAll());
+  const kin=kinship(f,M),avg=(f.inb+M.inb)/2;
+  const inb=Math.min(1,kin+(1-kin)*avg*.9);
+  const anc={};anc[f.id]=1;if(M.id)anc[M.id]=1;
+  for(const src of [f.anc,M.anc])for(const id in src){const d=src[id]+1;if(d<=4&&(!anc[id]||d<anc[id]))anc[id]=d;}
+  const gen=Math.max(f.gen,M.gen)+1;
+  const pm=f.mu.filter(x=>x==='we'||x==='re').concat(M.mu||[]);
+  const mark=f.mark||M.mark||'',mc=f.mc>=0?f.mc:(M.mc!=null?M.mc:-1);
+  const tone=sp.cr?clamp(((f.tone==null?.5:f.tone)+(M.tone==null?.5:M.tone))/2+rnd(-.12,.12),0,1):null;
+  const ptem=f.tem!=null&&M.tem!=null?(f.tem+M.tem)/2:(f.tem!=null?f.tem:M.tem);
+  let got=0;
+  for(let i=0;i<k;i++){
+    let col=null,cs=null;
+    if(sp.iri){const r=Math.random();col=r<.375?f.col:r<.75?(f.fcol||f.col):pickCol(f.sp).id;}
+    /* ニジイロの筋色は地色とは別に遺伝: 母40% / 父40% / 新規(地色に応じた出やすさ)20% */
+    if(f.sp==='nijiiro'){const r=Math.random();cs=r<.4?(f.cs||'red'):r<.8?(f.fcs||f.cs||'red'):pickStripe(col).id;}
+    const gp=clamp(.55*(f.gp+M.gp)/2+.45*(ratioOf(f)+M.ratio)/2+rnd(-.08,.08),.05,1);
+    const sex=Math.random()<.5?'m':'f';
+    const ch=mk(f.sp,sex,'egg',{col,cs,gen,inb,anc:Object.assign({},anc),gp,pm:pm.slice(),pa:M.id,ma:f.id,ps:sex==='m'?(M.size||0):(f.size||0),mark,mc,origin:'bred',ptem,tone:tone==null?undefined:clamp(tone+rnd(-.05,.05),0,1)});
+    if(addBeetle(ch,f.sh))got++;else delete S.ped[ch.id];
+  }
+  if(got>0){log(`${bname(f)}が${got}個の卵を産んだ(F${gen}・近交度${Math.round(inb*100)}%)`,'good');toast(`${bname(f)}が${got}個の卵を産みました`);sfx('lay');}
+  else{log(`${bname(f)}は産卵したかったが、空きスロットがなかった`,'bad');toast('空きスロットがなく卵を産めませんでした');sfx('err');}
+}
+const AMB=sh=>clamp(1.5-sh.rh/100*1.1,.45,1.4);
+function step(dt,off){
+  S.day+=dt;
+  while(S.wd<Math.floor(S.day)){S.wd++;dayTick();}
+  envStep(dt);
+  const dk=off?.5:1;
+  for(const b of S.beetles.slice()){
+    if(b.stage==='dead')continue;
+    const sp=SP[b.sp];
+    b.age+=dt;
+    if(b.dT)b.dT=Math.abs(b.dT)<.02?0:b.dT*Math.exp(-dt*.7);
+    const t=caseT(b),dm=itp(T_DEV,t),gm=itp(T_G,t),am=itp(T_AGE,t),dry=itp(T_DRY,t);
+    const sx=tstress(sp,t),dr=drainOf(sx);
+    if(b.stage==='egg'){
+      b.prog+=dt*dm;
+      if(b.prog>=EGG){b.stage='larva';b.prog=0;b.food=100;b.kind='mat';b.hp=100;log(`${bname(b)}が孵化した`);sfx('hatch');}
+    }else if(b.stage==='larva'){
+      const L=b.larvaDays,pk=pkOf(b),pre=b.prog>L*.88,K=KINDS[b.kind]||KINDS.mat,fmv=fmOf(b,b.kind);
+      if(!pre){
+        const kl=b.kind==='kin'||b.kind==='kaw';
+        /* 暴れ(ワンダリング): 終齢で起きる。エサが減るほど、菌糸ほど起きやすい。エサ交換で治る */
+        if(sp.wan&&!b.wan&&b.prog>=L*.5&&!(sp.wanKin&&!kl)){
+          const p=.01*sp.wan*(kl?1.4:.6)*(b.food<50?1+(50-b.food)/25:1);
+          if(Math.random()<p*dt){b.wan=true;log(`${bname(b)}が暴れ始めた(エサを交換しよう)`,'bad');}
+        }
+        b.food=Math.max(0,b.food-dt*K.dec*(.6+.8*Math.min(1,b.w/pk))*(b.wan?1.5:1)*dk);
+        const ff=b.food>=30?1:(b.food>0?.4+.6*b.food/30:0);
+        /* 低温種を適温で育てると大きく育つ */
+        const gain=pk*1.05/sp.larva*K.g*fmv*(sp.cold&&sx===0?1.1:1);
+        if(b.wan)b.w=Math.max(pk*.3,b.w-dt*pk*.015);
+        else b.w=Math.min(pk*1.3,b.w+dt*gain*ff*gm);
+        if(b.food<=0)b.hp-=dt*2.5*dk;
+        else if(fmv<=.05)b.hp-=dt*1.6*dk;
+        else if(sp.drop&&fmv<.3&&Math.random()<dt*.03){die(b,'エサ不足');continue;}
+        else if(b.hp<100&&dr<.1)b.hp=Math.min(100,b.hp+dt*.6);
+        if(kl&&b.prog>=L*.2)b.kinT=(b.kinT||0)+dt;
+      }
+      /* オオクワ: 2齢以降の温度の幅を記録(セミ化の判定用) */
+      if(sp.semi&&b.prog>=L*.2){b.tlo=Math.min(b.tlo==null?t:b.tlo,t);b.thi=Math.max(b.thi==null?t:b.thi,t);}
+      if(b.semi&&b.age>=L*2.2){die(b,'セミ化(季節の温度変化がなく、蛹になれなかった)');continue;}
+      if(dr>0)b.hp-=dt*dr*dk;
+      if(off&&b.hp<5&&b.hp>0)b.hp=5;
+      if(b.hp<=0){die(b,causeOf(b,sx,t));continue;}
+      if(b.inb>.2&&Math.random()<b.inb*b.inb*.004*dt){die(b,'近親交配の影響で脱落');continue;}
+      b.prog+=dt*dm;
+      if(b.prog>=L&&sp.semi&&!b.semi&&!b.semiChk){
+        b.semiChk=1;
+        const rg=(b.thi==null?0:b.thi-b.tlo);
+        if(Math.random()<clamp((3-rg)/3,0,1)*.6)b.semi=true;
+      }
+      if(b.semi&&b.prog>=L)b.prog=L*.86;
+      if(b.prog>=L){
+        if(Math.random()<b.inb*b.inb*.3){die(b,'前蛹で脱落(近交退化)');continue;}
+        b.stage='pupa';b.prog=0;b.q=clamp(b.w/(pk*1.25),0,1);b.hp=100;log(`${bname(b)}が蛹になった`);
+      }
+    }else if(b.stage==='pupa'){
+      if(dr>0){b.hp-=dt*dr*dk;if(off&&b.hp<5&&b.hp>0)b.hp=5;}
+      if(b.hp<=0){die(b,causeOf(b,sx,t));continue;}
+      b.prog+=dt*dm;
+      if(b.prog>=PUPA){
+        if(Math.random()<b.inb*b.inb*.18){die(b,'蛹で脱落(近交退化)');continue;}
+        emerge(b,sp);
+      }
+    }else if(b.stage==='adult'){
+      const mt=mature(b),M=MATS[b.mat]||MATS.ferm,J=JELLY[b.jk]||JELLY.norm;
+      /* 冬眠(ヒラタ): 室温15°C以下で冬眠、18°C以上で目覚める */
+      if(sp.hib&&mt){
+        if(!b.hib&&t<=15){b.hib=true;log(`${bname(b)}が冬眠に入った`);}
+        else if(b.hib&&t>=18){b.hib=false;log(`${bname(b)}が冬眠から目覚めた`,'good');}
+      }else b.hib=false;
+      b.adultAge+=dt*am*(b.hib?.1:1)*(b.bind?1.5:1);
+      b.cool=Math.max(0,b.cool-dt);
+      let bad=false;
+      if(mt&&b.hib){
+        const sh=shOf(b),cl=b.cel&&celOn();
+        b.moist=Math.max(0,b.moist-dt*.4*M.moist*dry*AMB(sh)*(sh.humid?.35:1)*(cl?.5:1)*dk);
+        bad=b.moist<=0;
+        if(bad)b.hp-=dt*2.2*dk;
+        else if(b.moist>25&&b.hp<100)b.hp=Math.min(100,b.hp+dt*.5);
+      }else if(mt){
+        const cl=b.cel&&celOn();
+        const sh=shOf(b);
+        b.food=Math.max(0,b.food-dt*J.dec*dk);
+        b.moist=Math.max(0,b.moist-dt*1.1*(sp.wet||1)*M.moist*J.wet*dry*AMB(sh)*(sh.humid?.35:1)*(cl?.5:1)*dk);
+        if(sh.humid&&!cl&&b.moist<50)b.moist=Math.min(50,b.moist+dt*1.2*dk);
+        b.clean=Math.max(0,b.clean-dt*1.4*(sp.dirt||1)*M.clean*J.dirt*(b.moist>85?1.5:1)*(t>26?1.25:1)*(sh.humid?1.1:1)*dk);
+        bad=b.food<=0||b.moist<=0||b.clean<=0;
+        if(bad)b.hp-=dt*2.2*dk;
+        else if(b.moist>(sp.muggy||92))b.hp-=dt*.6*dk;
+        else if(b.food>25&&b.moist>25&&b.clean>25&&b.hp<100&&dr<.1)b.hp=Math.min(100,b.hp+dt*.8*J.heal);
+      }
+      if(dr>0&&!(b.hib&&t>=3))b.hp-=dt*dr*dk;
+      if(off&&b.hp<5&&b.hp>0)b.hp=5;
+      if(b.mated&&!b.hib){b.eggTimer-=dt;if(b.eggTimer<=0)lay(b);}
+      if(b.hp<=0){die(b,causeOf(b,sx,t));continue;}
+      if(b.adultAge>=b.life)die(b,'老衰',true);
+    }
+  }
+}
+function sim(days,off){let r=days;while(r>1e-6){const d=Math.min(r,.5);step(d,off);r-=d;}}
+function catchUp(sec){
+  const s=Math.min(sec,OFFLINE_CAP),days=s/DAY_SEC/OFFLINE_SLOW;
+  if(days<.5)return;
+  awayCap=[];
+  const d0=Math.floor(S.day);
+  try{sim(days,true);}finally{
+    const ev=awayCap;awayCap=null;
+    /* 留守中のまとめ: 重要度順(悪い知らせ → 良い知らせ → その他) */
+    const pr=e=>e.k==='bad'?0:e.k==='good'?1:2;
+    const items=ev.slice().sort((a,b)=>pr(a)-pr(b)||a.d-b.d);
+    const live=S.beetles.filter(b=>b.stage!=='dead');
+    const care=live.filter(b=>attn(b)||b.hp<=6||b.bind).map(b=>b.id);
+    lastAway={days:Math.round(days),from:d0,to:Math.floor(S.day),items,care,bad:ev.filter(e=>e.k==='bad').length,good:ev.filter(e=>e.k==='good').length};
+  }
+  toast(`おかえり! 留守のあいだに ${Math.round(days)}日 経ちました`);
+  if(days>=3&&(lastAway.items.length||lastAway.care.length)&&typeof openAway==='function'&&!awayHold())setTimeout(openAway,350);
+}
+
+/* ---------- 依頼・コンテスト・ガラポン・実績 ---------- */
+function reqTitle(r){
+  const sp=SP[r.sp]||{};
+  if(r.t==='size')return`${sp.name}${r.sex==='m'?'♂':'♀'} ${r.min}mm以上`;
+  if(r.t==='gen')return`${sp.name} 累代F${r.n}以上(野外採集個体は不可)`;
+  if(r.t==='mut')return`${MUN[r.m]}の個体(種類不問)`;
+  return`${sp.name} ${sp.gloss?'艶':'体色'}ランク${r.rk}以上`;
+}
+function newReq(){
+  const t=pick(['size','size','size','gen','mut','col']);
+  const q={id:S.qid++,t,due:Math.floor(S.day)+40};
+  if(t==='size'){
+    const id=pick(ORDER),sp=SP[id],sex=Math.random()<.7?'m':'f',rg=sex==='m'?sp.m:sp.f;
+    q.sp=id;q.sex=sex;q.min=Math.round(rg[0]+(rg[1]-rg[0])*rnd(.35,.8));
+    q.rw=Math.round(q.min*1.4+sp.price*.4+25);
+  }else if(t==='gen'){
+    const known=Object.keys(S.dex),id=known.length?pick(known):'kokuwa',sp=SP[id];
+    q.sp=id;q.n=2+Math.floor(Math.random()*3);q.rw=Math.round(sp.price*.6+50*q.n);
+  }else if(t==='mut'){
+    q.m=wpick([['we',50],['re',35],['gyn',15]]);q.sp='';q.rw={we:160,re:130,gyn:320}[q.m];
+  }else{
+    const id=pick(['nijiiro','papuakin','ougon']),sp=SP[id];
+    q.sp=id;q.rk=Math.random()<.65?'B':'A';q.rw=Math.round((q.rk==='B'?90:180)+sp.price*.2);
+  }
+  if(S.reqs.some(r=>reqTitle(r)===reqTitle(q)))return null;
+  return q;
+}
+function reqOK(r,b){
+  if(b.stage!=='adult')return false;
+  if(r.t==='size')return b.sp===r.sp&&b.sex===r.sex&&b.size>=r.min;
+  if(r.t==='gen')return b.sp===r.sp&&!b.wd&&b.gen>=r.n;
+  if(r.t==='mut')return hasMu(b,r.m);
+  return b.sp===r.sp&&RANKV[rank(b)]>=RANKV[r.rk];
+}
+function cInfo(){
+  const dd=Math.floor(S.day),n=Math.floor((dd-1)/CY),cd=(dd-1)%CY;
+  return{n,cd,open:cd<COPEN,left:COPEN-cd,next:CY-cd,sp:CTS[n%CTS.length]};
+}
+const cTitle=id=>SP[id].name+(SP[id].gloss?'(艶部門)':SP[id].iri?'(色虫部門)':'♂ 大型大会');
+const cScore=b=>SP[b.sp].iri?value(b):b.size;
+const cElig=(b,id)=>b.stage==='adult'&&b.sp===id&&(SP[id].iri||b.sex==='m');
+function cSched(){
+  const dd=Math.floor(S.day),n0=Math.floor((dd-1)/CY),cd=(dd-1)%CY,out=[];
+  for(let n=cd<COPEN?n0:n0+1;out.length<4;n++){
+    const st=n*CY+1;
+    out.push({n,sp:CTS[n%CTS.length],start:st,end:st+COPEN-1,cur:n===n0&&cd<COPEN});
+  }
+  return out;
+}
+function resolveContest(){
+  const c=S.ct;c.done=true;
+  const id=CTS[c.n%CTS.length],sp=SP[id],name=cTitle(id),dd=Math.floor(S.day);
+  const names=NPCN.slice().sort(()=>Math.random()-.5),board=[];
+  for(let i=0;i<5;i++){
+    const rg=sp.m,sz=rg[0]+(rg[1]-rg[0])*(.3+.5*Math.random());
+    let sc=sz;
+    if(sp.iri){const cc=pickCol(id);sc=value({sp:id,sex:'m',size:sz,col:cc.id,cs:id==='nijiiro'?pickStripe(cc.id).id:null,mu:[]});}
+    board.push({name:names[i]+'さん',sc:Math.round(sc*10)/10,me:false});
+  }
+  if(c.entry)board.push({name:'あなた('+c.entry.name+')',sc:c.entry.sc,me:true});
+  board.sort((a,b)=>b.sc-a.sc);
+  let place=0,prize=0;
+  if(c.entry){
+    place=board.findIndex(x=>x.me)+1;
+    prize=[150+60*sp.star,80+30*sp.star,40+15*sp.star][place-1]||15;
+    S.coins+=prize;
+    const pe=S.ped[c.entry.id];if(pe){pe.ct=pe.ct||[];pe.ct.push({name,place,day:dd,top:board[0].sc,sc:c.entry.sc});}
+    if(place===1)S.stat.cw1++;
+    if(place<=3)S.stat.cw3++;
+    log(`「${name}」の結果: ${place}位! +${prize}pt`,place<=3?'good':'');
+    toast(`「${name}」${place}位! +${prize}pt`);sfx(place<=3?'sell':'tap');
+  }else{
+    log(`「${name}」が終了(不参加)。優勝は${board[0].sc}${sp.iri?'pt相当':'mm'}`);
+    toast(`「${name}」の結果が出ました(イベント画面で確認)`);
+  }
+  S.ctLast={n:c.n,name,sp:id,place,prize,board,entered:!!c.entry,day:dd};
+  S.ctHist.unshift({n:c.n,name,sp:id,top:board[0].sc,low:board[board.length-1].sc,place,iri:!!sp.iri,day:dd});
+  if(S.ctHist.length>8)S.ctHist.length=8;
+}
+function giftEvent(){
+  if(freeAll()<1)return;
+  if(Math.random()<.5){
+    const id=wpick([['kokuwa',40],['hirata',28],['okuwa',16],['yamatosabi',16]]),sp=SP[id],sex=Math.random()<.5?'m':'f';
+    const b=mk(id,sex,'adult',{adultAge:adultAgeOf(sp),rd:true,rp:true,q:rnd(.2,.75),wd:true,gen:0,gp:rnd(.3,.75),food:70,moist:70});
+    b.size=calcSize(sp,sex,b.q,b.gp);pedSync(b);
+    if(!addBeetle(b))return;
+    seen(id,sex,b.size);
+    log(`冬の朽ち木で越冬していた${bname(b)}(WD ${b.size}mm)を譲ってもらった`,'good');
+    toast(`越冬個体をもらった! ${sp.name}${sex==='m'?'♂':'♀'} ${b.size}mm`);sfx('catch');
+  }else{
+    const id=pick(ORDER),sp=SP[id],sex=Math.random()<.5?'m':'f',rg=sex==='m'?sp.m:sp.f;
+    const b=mk(id,sex,'adult',{adultAge:adultAgeOf(sp),rd:true,rp:true,gen:1,gp:rnd(.5,.85),mu:['def'],food:70,moist:70,origin:'gift'});
+    if(sp.iri){
+      const l=COLS[id].slice().sort((a,b)=>b.mult-a.mult);
+      b.col=pick(l.slice(0,Math.max(2,Math.ceil(l.length/2)))).id;
+      if(id==='nijiiro')b.cs=pickStripe(b.col).id;
+    }
+    b.size=Math.round((rg[0]+(rg[1]-rg[0])*rnd(.7,.95))*.93*10)/10;
+    pedSync(b);
+    if(!addBeetle(b))return;
+    seen(id,sex,b.size);
+    log(`知人から、羽化不全だが良型の${bname(b)}(${b.size}mm${sp.iri?' '+colName(b):''})をもらった`,'good');
+    toast(`羽化不全だけど良型の${sp.name}をもらった! ${b.size}mm`);sfx('catch');
+  }
+}
+function gInfo(){
+  const dd=Math.floor(S.day),n=Math.floor((dd-1)/GCY),cd=(dd-1)%GCY;
+  return{n,open:cd<GOPEN,left:GOPEN-cd,next:GCY-cd,remain:GC_MAX-(S.gc.n===n?S.gc.used:0),th:GTH[n%GTH.length],nx:GTH[(n+1)%GTH.length]};
+}
+function gachaSpin(){
+  const g=gInfo();
+  if(!g.open){toast('ガラポン大会は開催していません');sfx('err');return;}
+  if(g.remain<1){toast('今回の抽選回数を使い切りました');sfx('err');return;}
+  if(free()<1){toast('空きスロットがありません');sfx('err');return;}
+  if(!pay(GC_PRICE))return;
+  S.gc.used++;S.stat.gacha++;
+  const id=wpick(g.th.w),sp=SP[id];
+  const b=mk(id,Math.random()<.5?'m':'f','larva',{gen:1,gp:rnd(.4,.8),origin:'gacha'});
+  b.kind=bestKind(id);
+  b.prog=b.larvaDays*rnd(.12,.28);b.w=pkOf(b)*1.05*b.prog/sp.larva*.9;
+  addBeetle(b);seen(id);
+  S.gLast={sp:id,n:S.stat.gacha};
+  log(`ガラポン! ${sp.name}の幼虫(${bname(b)})が出た`,sp.star>=4?'good':'');
+  toast(`ガラポン! ${sp.name}の幼虫が出ました`);sfx(sp.star>=4?'emerge':'catch');
+}
+const dexCount=()=>Object.keys(S.dex).length;
+const recCount=()=>ORDER.filter(id=>{const d=S.dex[id];return d&&(d.bm>=SP[id].m[1]*.9||d.bf>=SP[id].f[1]*.9);}).length;
+const ACH=[
+ {id:'first',n:'はじめての羽化',d:'成虫を1匹羽化させる',r:20,f:()=>S.stat.emerged>=1},
+ {id:'em10',n:'羽化10匹',d:'累計10匹を羽化させる',r:50,f:()=>S.stat.emerged>=10},
+ {id:'em50',n:'ベテランブリーダー',d:'累計50匹を羽化させる',r:200,f:()=>S.stat.emerged>=50},
+ {id:'g2',n:'累代の第一歩',d:'F2以上を羽化させる',r:40,f:()=>S.stat.maxGen>=2},
+ {id:'g4',n:'累代ブリーダー',d:'F4以上を羽化させる',r:120,f:()=>S.stat.maxGen>=4},
+ {id:'g7',n:'長き血統',d:'F7以上を羽化させる',r:300,f:()=>S.stat.maxGen>=7},
+ {id:'inb',n:'血が濃い…',d:'近交度60%以上の個体を羽化させる',r:30,f:()=>S.stat.maxInb>=.6},
+ {id:'we',n:'白い瞳',d:'ホワイトアイを羽化させる',r:100,f:()=>S.stat.mu.we>0},
+ {id:'re',n:'赤い瞳',d:'レッドアイを羽化させる',r:80,f:()=>S.stat.mu.re>0},
+ {id:'gyn',n:'奇跡の一匹',d:'雌雄同体を羽化させる',r:250,f:()=>S.stat.mu.gyn>0},
+ {id:'dwarf',n:'ちびっこ',d:'極小個体を羽化させる',r:20,f:()=>S.stat.mu.dwarf>0},
+ {id:'dex5',n:'図鑑ひろがる',d:'5種を入手する',r:80,f:()=>dexCount()>=5},
+ {id:'dex10',n:'図鑑コンプリート',d:`全${ORDER.length}種を入手する`,r:400,f:()=>dexCount()>=ORDER.length},
+ {id:'rec',n:'記録級',d:'種の最大サイズの90%以上を育てる',r:100,f:()=>recCount()>=1},
+ {id:'spec1',n:'標本づくり',d:'標本を1つ作る',r:30,f:()=>S.spec.length>=1},
+ {id:'spec10',n:'標本コレクター',d:'標本を10個作る',r:150,f:()=>S.spec.length>=10},
+ {id:'req1',n:'はじめての納品',d:'依頼を1件達成する',r:30,f:()=>S.stat.req>=1},
+ {id:'req10',n:'頼れるブリーダー',d:'依頼を10件達成する',r:200,f:()=>S.stat.req>=10},
+ {id:'cw3',n:'コンテスト入賞',d:'コンテストで3位以内に入る',r:60,f:()=>S.stat.cw3>=1},
+ {id:'cw1',n:'チャンピオン',d:'コンテストで優勝する',r:150,f:()=>S.stat.cw1>=1},
+ {id:'cel',n:'低温管理の入口',d:'ワインセラーを導入する',r:30,f:()=>S.cel.own},
+ {id:'gc',n:'ガラポン好き',d:'ガラポンを10回まわす',r:60,f:()=>S.stat.gacha>=10},
+ {id:'sh2',n:'棚が増えた',d:'飼育棚を2つ以上にする',r:30,f:()=>S.shelves.length>=2},
+ {id:'rich',n:'ptがたまった',d:'1000ptをためる',r:100,f:()=>S.coins>=1000}
+];
+function checkAch(){
+  for(const a of ACH){
+    if(S.ach[a.id]||!a.f())continue;
+    S.ach[a.id]=Math.floor(S.day);S.coins+=a.r;
+    log(`実績「${a.n}」達成! +${a.r}pt`,'good');toast(`実績「${a.n}」達成! +${a.r}pt`);sfx('sell');
+  }
+}
+
+/* ---------- helpers for UI ---------- */
+const inst=b=>{const f=b.prog/b.larvaDays;return f<.2?1:f<.5?2:3;};
+const isPre=b=>b.stage==='larva'&&b.prog>b.larvaDays*.88;
+const mature=b=>b.stage==='adult'&&(b.rd||b.adultAge>=SP[b.sp].rest);
+const ripe=b=>mature(b)&&(b.rp||b.adultAge>=SP[b.sp].rest+SP[b.sp].ripe);
+const restLeft=b=>Math.max(1,Math.ceil((SP[b.sp].rest-b.adultAge)/itp(T_AGE,caseT(b))));
+const ripeLeft=b=>Math.max(1,Math.ceil((SP[b.sp].rest+SP[b.sp].ripe-b.adultAge)/itp(T_AGE,caseT(b))));
+const adultAgeOf=sp=>sp.rest+sp.ripe+rnd(2,10);
+function stageLabel(b){
+  switch(b.stage){
+    case'egg':return'たまご';
+    case'larva':return isPre(b)?'前蛹':inst(b)+'齢幼虫';
+    case'pupa':return'蛹';
+    case'adult':return(b.hib?'成虫(冬眠中)':mature(b)?(ripe(b)?'成虫':'成虫(成熟待ち)'):'成虫(蛹室で休眠中)')+(SP[b.sp].iri?` ${colName(b)} ${rank(b)}`:'');
+    default:return b.natural?'天寿をまっとう':'死亡';
+  }
+}
+function attn(b){
+  if(b.stage==='dead'||b.stage==='egg')return false;
+  if(tstress(SP[b.sp],caseT(b))>=.6)return true;
+  if(b.stage==='larva'&&!isPre(b))return b.food<30||!!b.wan||fmOf(b,b.kind)<=.05;
+  if(b.hib)return b.moist<30;
+  if(mature(b))return Math.min(b.food,b.moist,b.clean)<30||b.moist>(SP[b.sp].muggy||92);
+  return false;
+}
+/* お世話が必要な理由(詳細シート用)。lv: 'w'=警告 'n'=注意 */
+function careIssues(b){
+  const r=[],sp=SP[b.sp];
+  if(b.stage==='dead'||b.stage==='egg')return r;
+  const t=caseT(b),sx=tstress(sp,t),[lo,hi]=sp.pref,mid=(lo+hi)/2;
+  if(sx>=.3&&!(b.hib&&t>=3)){
+    const hot=t>mid,lv=sx>=.6?'w':'n';
+    r.push({lv,t:`温度が${hot?'高':'低'}すぎます(${t.toFixed(1)}°C / 適温 ${lo}–${hi}°C)。`+(hot?(hi<AC_MIN?'エアコンでは下げきれません。ワインセラーに入れよう':'エアコンの設定を下げるか、ワインセラーに入れよう'):'エアコンで暖めよう')});
+  }
+  if(b.stage==='larva'&&!isPre(b)){
+    if(b.wan)r.push({lv:'w',t:'幼虫が暴れています。体重が減り続けています。エサを交換して落ち着かせよう'});
+    const f=fmOf(b,b.kind);
+    if(f<=.05)r.push({lv:'w',t:`${KINDS[b.kind].n}ではまったく育ちません。${KINDS[bestKind(b.sp)].n}に交換しよう`});
+    else if(f<.6)r.push({lv:'n',t:`${KINDS[b.kind].n}は合っていません(育ちが遅い)。${KINDS[bestKind(b.sp)].n}がおすすめ`});
+    if(b.food<30)r.push({lv:'w',t:`エサが残りわずかです(${Math.round(b.food)})。エサを交換しよう`});
+  }
+  if(b.stage==='adult'&&mature(b)){
+    const mg=sp.muggy||92;
+    if(!b.hib&&b.food<30)r.push({lv:'w',t:`ゼリーが残りわずかです(${Math.round(b.food)})。ゼリーをあげよう`});
+    if(b.moist<30)r.push({lv:'w',t:`乾いています(湿度 ${Math.round(b.moist)})。霧吹きをしよう`});
+    else if(b.moist>mg)r.push({lv:'w',t:`湿度が高すぎます(${Math.round(b.moist)})。蒸れて体力が減ります。霧吹きを控えて下がるのを待とう`});
+    if(!b.hib&&b.clean<30)r.push({lv:'w',t:`ケースが汚れています(清潔 ${Math.round(b.clean)})。掃除しよう`});
+  }
+  if(b.bind)r.push({lv:'n',t:'アゴ縛り中は寿命が早く減ります。ペアリングが終わったら解こう'});
+  if(b.hp<40)r.push({lv:'w',t:`体力が低くなっています(${Math.round(b.hp)})。原因を取り除くと少しずつ回復します`});
+  return r;
+}
+function miniVal(b){
+  if(b.stage==='larva'&&!isPre(b))return b.food;
+  if(mature(b))return Math.min(b.food,b.moist,b.clean);
+  if(b.stage==='egg')return b.prog/EGG*100;
+  if(b.stage==='larva')return 100;
+  if(b.stage==='pupa')return b.prog/PUPA*100;
+  if(b.stage==='adult')return b.adultAge/SP[b.sp].rest*100;
+  return 0;
+}
+function eligible(b){return ripe(b)&&!b.hib&&b.hp>=40&&b.cool<=0&&!b.mated&&!(b.sex==='f'&&b.clutches>=3);}
+function partners(b){return S.beetles.filter(o=>o!==b&&o.sp===b.sp&&o.sex!==b.sex&&eligible(o));}
+function reqs(f){
+  const sp=SP[f.sp],r=[];
+  const matOk=f.mat!=='hinoki'&&(sp.lay!=='mat'||f.mat==='breed');
+  r.push({ok:matOk,t:sp.lay!=='mat'?'メスのマットが発酵マットか産卵用マット':'メスのマットが産卵用マット(マット産み)'});
+  if(sp.lay==='wood')r.push({ok:S.wood>0,t:`産卵木がある(所持 ${S.wood}本)`});
+  r.push({ok:free()>=2,t:'空きスロットが2つ以上'});
+  return r;
+}
+function seed(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mix(a,b,t){
+  const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);
+  const f=(s)=>Math.round(((pa>>s)&255)*(1-t)+((pb>>s)&255)*t);
+  return '#'+((1<<24)+(f(16)<<16)+(f(8)<<8)+f(0)).toString(16).slice(1);
+}
+function bez(t,p0,p1,p2,p3){const u=1-t;return[u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]];}
+const both=x=>x+'<g transform="scale(-1 1)">'+x+'</g>';
+const f1=n=>(Math.round(n*10)/10);
+
+function bgSVG(b,r){
+  const adult=b.stage==='adult'||b.stage==='dead';
+  const kin=b.stage==='larva'&&b.kind!=='mat';
+  let s=`<rect width="200" height="170" fill="${adult?(b.mat==='hinoki'?'#b99a6a':'#7a6143'):kin?'#8a7752':'#3a2a1c'}"/>`;
+  const hin=adult&&b.mat==='hinoki';
+  const c1=kin?'#d9cfae':hin?'#d8bd8a':adult?'#9a7e58':'#5e4631',c2=kin?'#a89870':hin?'#8c6f44':adult?'#58432b':'#22160e';
+  for(let i=0;i<60;i++){
+    const x=f1(r()*200),y=f1(r()*170),rad=f1(.8+r()*2.8),col=r()<.5?c1:c2,op=(.35+r()*.45).toFixed(2);
+    if(hin)s+=`<rect x="${x}" y="${y}" width="${f1(rad*3.2)}" height="${f1(rad*1.5)}" rx="1.5" fill="${col}" opacity="${op}" transform="rotate(${Math.round(r()*180)} ${x} ${y})"/>`;
+    else s+=`<circle cx="${x}" cy="${y}" r="${rad}" fill="${col}" opacity="${op}"/>`;
+  }
+  if(adult){
+    s+=`<rect x="-14" y="134" width="150" height="30" rx="15" fill="#4a331f" transform="rotate(-8 60 149)"/>`;
+    s+=`<path d="M10 148 q30 -8 60 -2 M30 156 q30 -6 70 -4" stroke="#3c2818" stroke-width="2" fill="none" opacity=".7" transform="rotate(-8 60 149)"/>`;
+    const fd=b.stage==='dead'?0:clamp(b.food,0,100);
+    const jl=b.jk==='long';
+    s+=`<circle cx="168" cy="32" r="21" fill="#2a1d13"/><circle cx="168" cy="32" r="18" fill="#3c2b1c"/>`;
+    if(fd>0)s+=`<circle cx="168" cy="32" r="${f1(4+13*fd/100)}" fill="${jl?'#d4571f':'#e8a526'}" opacity=".92"/><circle cx="${f1(164-fd/40)}" cy="${f1(28-fd/40)}" r="2.6" fill="#fff" opacity=".55"/>`;
+  }
+  return s;
+}
+
+/* ---------- クワガタの描画 ---------- */
+function mandShape(mp,L,th,bx,by,col,hl){
+  const B=[bx,by],T=[Math.max(bx+mp.tip*L,6.5),by-L],C1=[bx+mp.out*L,by-L*.3],C2=[bx+mp.out*L*1.05,by-L*.72];
+  const N=40,out=[],inn=[],mid=[],tt=mp.teeth||[];
+  let last=[0,-1];
+  for(let i=0;i<=N;i++){
+    const t=i/N,P=bez(t,B,C1,C2,T),Q=bez(Math.min(1,t+.02),B,C1,C2,T),R=bez(Math.max(0,t-.02),B,C1,C2,T);
+    let tx=Q[0]-R[0],ty=Q[1]-R[1];const ln=Math.hypot(tx,ty)||1;tx/=ln;ty/=ln;
+    const nx=ty,ny=-tx,w=Math.max(.7,th*(1-mp.taper*t))/2;
+    let bump=0;
+    for(const[t0,h,wd]of tt){
+      const d=t-t0;
+      if(d<=0&&d>-wd)bump=Math.max(bump,h*th*(1+d/wd));
+      else if(d>0&&d<wd*.35)bump=Math.max(bump,h*th*(1-d/(wd*.35)));
+    }
+    out.push([P[0]-nx*w,P[1]-ny*w]);
+    inn.push([P[0]+nx*(w+bump),P[1]+ny*(w+bump)]);
+    if(i%8===0)mid.push([P[0]-nx*w*.35,P[1]-ny*w*.35]);
+    last=[tx,ty];
+  }
+  const pt=p=>f1(p[0])+' '+f1(p[1]);
+  let d='M'+out.map(pt).join('L');
+  d+='L'+pt([T[0]+last[0]*3,T[1]+last[1]*3]);
+  d+='L'+inn.slice().reverse().map(pt).join('L')+'Z';
+  let s=`<path d="${d}" fill="${col}"/>`;
+  if(mp.fork){
+    const i1=Math.round(N*.74),i2=Math.round(N*.88),P=bez(.8,B,C1,C2,T);
+    const a=inn[i1],b=inn[i2],ln=mp.fork*L*.09+th*.4;
+    const tipP=[(a[0]+b[0])/2-ln*.9,(a[1]+b[1])/2-ln*.7];
+    s+=`<path d="M${pt(a)}L${pt(tipP)}L${pt(b)}Z" fill="${col}"/>`;
+  }
+  s+=`<path d="M${mid.map(pt).join('L')}" fill="none" stroke="${hl}" stroke-width="1.1" opacity=".4" stroke-linecap="round"/>`;
+  return s;
+}
+function elPath(ew,y0,y1){
+  const H=y1-y0;
+  return`M0 ${y0}C${f1(ew*.55)} ${y0-2} ${f1(ew*1.02)} ${f1(y0+8)} ${f1(ew*1.04)} ${f1(y0+H*.3)}C${f1(ew*1.06)} ${f1(y0+H*.62)} ${f1(ew*.82)} ${f1(y1-6)} ${f1(ew*.3)} ${f1(y1-1)}Q${f1(ew*.1)} ${f1(y1+1)} 0 ${f1(y1)}Z`;
+}
+function pronPath(pw,ps){
+  if(ps==='hex')return`M0 -36L${f1(pw*.5)} -36L${f1(pw)} -27L${f1(pw)} -12L${f1(pw*.62)} -3L0 -3Z`;
+  if(ps==='wide')return`M0 -37C${f1(pw*.7)} -37 ${f1(pw*1.08)} -29 ${f1(pw*1.08)} -19C${f1(pw*1.08)} -9 ${f1(pw*.7)} -3 0 -3Z`;
+  return`M0 -36C${f1(pw*.6)} -36 ${f1(pw)} -28 ${f1(pw)} -19.5C${f1(pw)} -10 ${f1(pw*.6)} -3 0 -3Z`;
+}
+function halfG(o){
+  const v=o.v,m=o.m,ratio=o.ratio,dark=o.dark;
+  const ew=v.ew*(m?1:.95),pw=v.pw*(m?1:.93);
+  const y0=-14,y1=-14+70*(v.eh/40)*(m?1:.97),H=y1-y0;
+  let g='';
+  /* 脚 */
+  const lx=(ew-27)*.8,lw=v.tib||4.2;
+  const leg=(a,b,c)=>{
+    const A=[a[0]+lx,a[1]],B=[b[0]+lx,b[1]],C=[c[0]+lx,c[1]];
+    let s=`<path d="M${f1(A[0])} ${A[1]}L${f1(B[0])} ${B[1]}" stroke="${dark}" stroke-width="4.2"/><path d="M${f1(B[0])} ${B[1]}L${f1(C[0])} ${C[1]}" stroke="${o.legc}" stroke-width="${lw}"/>`;
+    const dx=C[0]-B[0],dy=C[1]-B[1],ln=Math.hypot(dx,dy)||1,px=-dy/ln*3.4,py=dx/ln*3.4;
+    for(const t of[.35,.65,.92]){const X=B[0]+dx*t,Y=B[1]+dy*t;s+=`<path d="M${f1(X)} ${f1(Y)}L${f1(X+px)} ${f1(Y+py)}" stroke="${o.legc}" stroke-width="1.6"/>`;}
+    return s;
+  };
+  g+=`<g fill="none" stroke-linecap="round" stroke-linejoin="round">${leg([20,-16],[40,-30],[50,-22])}${leg([25,6],[47,0],[56,13])}${leg([22,30],[44,36],[50,52])}</g>`;
+  /* 翅 */
+  if(v.flat)g+=`<path d="${elPath(ew+3,y0,y1+2)}" fill="${mix(o.baseCol,'#000000',.4)}"/>`;
+  g+=`<path d="${elPath(ew,y0,y1)}" fill="${o.fillE}"/>`;
+  /* 筋色(ニジイロ): 翅の縦の筋と合わせ目 */
+  if(o.stripe){
+    const ym=(y0+y1)/2,cp=`M${f1(ew*.52)} ${f1(y0+7)}Q${f1(ew*.6)} ${f1(ym)} ${f1(ew*.36)} ${f1(y1-9)}`;
+    g+=`<path d="${cp}" fill="none" stroke="${o.stripe}" stroke-width="${f1(ew*.2)}" stroke-linecap="round" opacity=".4"/>`;
+    g+=`<path d="${cp}" fill="none" stroke="${o.stripe}" stroke-width="${f1(ew*.11)}" stroke-linecap="round" opacity=".95"/>`;
+    g+=`<path d="M${f1(ew*.07)} ${f1(y0+4)}L${f1(ew*.09)} ${f1(y1-3)}" stroke="${o.stripe}" stroke-width="${f1(ew*.07)}" stroke-linecap="round" opacity=".9"/>`;
+  }
+  if(v.st){
+    let ln='',dots='';
+    for(let k=1;k<=v.st;k++){
+      const x=ew*k/(v.st+1)*.98,ye=y1-6-(x/ew)*H*.3,xs=x,ys=y0+6,xc=x*1.05,yc=(ys+ye)/2,xe=x*.84;
+      ln+=`M${f1(xs)} ${f1(ys)}Q${f1(xc)} ${f1(yc)} ${f1(xe)} ${f1(ye)}`;
+      if(v.pu)for(let j=1;j<=7;j++){
+        const t=j/8,u=1-t,px=u*u*xs+2*u*t*xc+t*t*xe,py=u*u*ys+2*u*t*yc+t*t*ye;
+        dots+=`<circle cx="${f1(px+ew*.05)}" cy="${f1(py)}" r=".6"/>`;
+      }
+    }
+    g+=`<path d="${ln}" stroke="rgba(0,0,0,.32)" stroke-width="${v.pu?1.2:.8}" fill="none"/>`;
+    if(dots)g+=`<g fill="rgba(0,0,0,.45)">${dots}</g>`;
+  }
+  if(v.edge)g+=`<path d="${elPath(ew-1,y0,y1-1)}" fill="none" stroke="rgba(25,14,4,.6)" stroke-width="2.6"/>`;
+  if(v.cream)g+=`<path d="${elPath(ew-1.8,y0+2,y1-2)}" fill="none" stroke="rgba(238,224,172,.95)" stroke-width="3" stroke-linejoin="round"/>`;
+  if(v.hair==='all')g+=`<path d="${elPath(ew-1.5,y0+2,y1-2)}" fill="none" stroke="${o.hairC}" stroke-width="4" stroke-dasharray="1 1.6" opacity=".22"/>`;
+  /* 前胸 */
+  g+=`<path d="${pronPath(pw,v.ps)}" fill="${o.fillH}" stroke="rgba(0,0,0,.4)" stroke-width="1.1" stroke-linejoin="round"/>`;
+  g+=`<path d="M0 -33L0 -6" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>`;
+  if(v.hair)g+=`<path d="${pronPath(pw-1.2,v.ps)}" fill="none" stroke="${o.hairC}" stroke-width="3" stroke-dasharray="1 1.4" opacity=".4"/>`;
+  /* 頭 */
+  const hr=v.hw*(m?(.85+.3*ratio):.82),hwd=13*hr;
+  if(v.ear&&m){
+    const es=.65+.55*ratio;
+    g+=`<path d="M${f1(hwd*.75)} -33L${f1(hwd+9*es)} ${f1(-33-12*es)}L${f1(hwd*1.05+1)} -30Z" fill="${o.fillH}" stroke="rgba(0,0,0,.3)" stroke-width=".8"/>`;
+    g+=`<path d="M${f1(hwd*.75)} -33L${f1(hwd+9*es)} ${f1(-33-12*es)}L${f1(hwd*1.05+1)} -30Z" fill="none" stroke="${o.hairC}" stroke-width="2" stroke-dasharray="1 1.3" opacity=".4"/>`;
+  }
+  const hp=`M0 -53L${f1(hwd*.5)} -53L${f1(hwd*.95)} -49L${f1(hwd*1.1)} -40L${f1(hwd)} -31L0 -30Z`;
+  g+=`<path d="${hp}" fill="${o.fillH}" stroke="rgba(0,0,0,.4)" stroke-width="1.1" stroke-linejoin="round"/>`;
+  if(v.hair==='all')g+=`<path d="${hp}" fill="none" stroke="${o.hairC}" stroke-width="3" stroke-dasharray="1 1.3" opacity=".4"/>`;
+  g+=`<path d="M0 -58L6 -53L0 -53Z" fill="${o.fillH}" stroke="rgba(0,0,0,.35)" stroke-width=".8"/>`;
+  g+=`<ellipse cx="${f1(hwd*.97)}" cy="-41" rx="2.4" ry="3.8" fill="${o.eyec}" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>`;
+  g+=`<circle cx="${f1(hwd*.97-.7)}" cy="-42.3" r=".9" fill="#fff" opacity=".7"/>`;
+  /* 触角 */
+  const ax=hwd*.62;
+  g+=`<g stroke="${dark}" stroke-linecap="round" fill="none"><path d="M${f1(ax)} -52L${f1(ax+5)} -61" stroke-width="2.2"/><path d="M${f1(ax+5)} -61L${f1(ax+8)} -64M${f1(ax+5)} -61L${f1(ax+9)} -61M${f1(ax+5)} -61L${f1(ax+9)} -58" stroke-width="1.8"/></g>`;
+  /* 大あご */
+  let mp=o.md,L,th;
+  if(m){L=54*mp.len*(.5+.5*Math.pow(ratio,.8));th=mp.th*1.5*(.85+.5*ratio);}
+  else{mp={tip:-.1,out:.2,taper:.5,teeth:[[.5,.7,.2]]};L=9;th=3;}
+  g+=mandShape(mp,L,th,f1(hwd*.5),-52,o.mcol,o.mhl);
+  return{g,L};
+}
+function adultG(b,sp){
+  const m=b.sex==='m',rg=m?sp.m:sp.f,mu=b.mu||[],v=sp.v;
+  const ratio=clamp((b.size-rg[0])/(rg[1]-rg[0]),0,1);
+  const dark='#16100c';
+  const bc=toneCol(b);
+  let fillE=bc,mid=bc,defs='',shineC=sp.shine;
+  if(sp.iri){
+    const c=colOf(b),id='gg'+(++GID);
+    let st=c.st;
+    /* 体色の幅がある艶評価種(オーベルチュール): 色は tone、艶は等級 */
+    if(sp.cr)st=[mix(bc,'#ffffff',.22),bc,mix(bc,'#000000',.45)];
+    /* オウゴンオニ: 湿度が高いと茶色寄り、低いと黄金寄り(一時的) */
+    if(b.sp==='ougon'&&b.stage==='adult'){const mo=b.moist==null?60:b.moist;
+      if(mo>55)st=st.map(x=>mix(x,'#8a6a2a',clamp((mo-55)/45,0,1)*.45));
+      else if(mo<40)st=st.map(x=>mix(x,'#ffe066',clamp((40-mo)/40,0,1)*.35));}
+    defs=`<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="-56" x2="0" y2="62">${st.map((x,i)=>`<stop offset="${Math.round(i/(st.length-1)*100)}%" stop-color="${x}"/>`).join('')}</linearGradient></defs>`;
+    fillE=`url(#${id})`;mid=st[Math.min(1,st.length-1)];shineC='#ffffff';
+  }
+  const fillH=sp.iri&&!sp.hc?fillE:(sp.hc||fillE);
+  const legc=sp.yl?'#d9ab3a':sp.iri&&!sp.cr?mix(mid,'#000000',.5):dark;
+  const mcol=sp.mc||(sp.cr&&sp.iri?mix(mid,'#000000',.72):sp.iri?mix(mid,'#000000',.35):mix(sp.hc||sp.col,'#000000',.25));
+  const mhl=mix(mcol,'#ffffff',.45);
+  const eyec=mu.includes('we')?'#f6f3e6':mu.includes('re')?'#c9161d':'#120d0a';
+  const glv=(sp.iri&&colOf(b).gl)||v.gl;
+  const stp=stripeOf(b);
+  const O={sp,v,ratio,dark,legc,fillE,fillH,eyec,mcol,mhl,md:mdOf(b).md,m,baseCol:mid,hairC:sp.iri?'#fff':sp.shine,stripe:stp?stp.c:null};
+  const R=halfG(O);
+  const Lf=halfG(Object.assign({},O,{m:mu.includes('gyn')?!m:m}));
+  const y1=-14+70*(v.eh/40),y0=-14;
+  const top=-(58+Math.max(R.L,Lf.L)),bot=y1+(mu.includes('def')?18:6);
+  const s=Math.min((.34+(b.size/118)*.44)*1.3,152/(bot-top));
+  const ty=88-((top+bot)/2)*s;
+  let g=defs+R.g+`<g transform="scale(-1 1)">${Lf.g}</g>`;
+  g+=`<path d="M0 ${y0+4}L0 ${f1(y1-1)}" stroke="rgba(0,0,0,.4)" stroke-width="1.3"/>`;
+  g+=`<ellipse cx="${f1(-v.ew*.33)}" cy="${f1((y0+y1)/2-4)}" rx="${f1(v.ew*.22)}" ry="${f1((y1-y0)*.3)}" fill="${shineC}" opacity="${f1(Math.min(.85,.12+glv*.45)*100)/100}" transform="rotate(7 ${f1(-v.ew*.33)} ${f1((y0+y1)/2)})"/>`;
+  if(glv>.9)g+=`<ellipse cx="${f1(v.ew*.36)}" cy="${f1((y0+y1)/2+6)}" rx="${f1(v.ew*.1)}" ry="${f1((y1-y0)*.2)}" fill="#fff" opacity="${f1(Math.min(.7,(glv-.7)*.7)*100)/100}"/>`;
+  if(mu.includes('def'))g+=`<path d="M-7 ${f1(y1-3)}Q-2 ${f1(y1+16)} 6 ${f1(y1-2)}Q13 ${f1(y1+10)} 11 ${f1(y1-5)}Z" fill="#c4a56f" opacity=".92" stroke="rgba(0,0,0,.3)" stroke-width=".8"/>`;
+  return`<g class="sway"><g transform="translate(100 ${f1(ty)}) scale(${s.toFixed(3)})">${g}</g></g>`;
+}
+function larvaG(b,sp){
+  const k=clamp(b.w/(pkOf(b)*1.3),0,1);
+  const R=22+16*k,rs=6.5+7.5*k,cx=100,cy=88,n=9;
+  let segs='';
+  for(let i=n-1;i>=0;i--){
+    const a=(-35+i*(250/(n-1)))*Math.PI/180;
+    const x=cx+R*Math.cos(a),y=cy+R*Math.sin(a),rad=rs*(1-.3*i/(n-1));
+    const tail=i===n-1;
+    segs+=`<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(rad)}" fill="${tail?'#b7b29a':'#f1e6c9'}" stroke="#c4b48a" stroke-width="1"/>`;
+    segs+=`<circle cx="${f1(x+Math.cos(a)*rad*.5)}" cy="${f1(y+Math.sin(a)*rad*.5)}" r="1.3" fill="#8a5a2b"/>`;
+  }
+  const ha=(-35-24)*Math.PI/180,hx=cx+R*Math.cos(ha),hy=cy+R*Math.sin(ha),hr=rs*.95;
+  segs+=`<circle cx="${f1(hx)}" cy="${f1(hy)}" r="${f1(hr)}" fill="#c1773a" stroke="#8c4f22" stroke-width="1"/>`;
+  segs+=`<path d="M${f1(hx-hr*.5)} ${f1(hy-hr*.3)} l-3 -3 M${f1(hx+hr*.3)} ${f1(hy-hr*.5)} l2 -4" stroke="#4a2a12" stroke-width="2" stroke-linecap="round"/>`;
+  return `<g>${segs}</g>`;
+}
+function pupaG(b,sp){
+  const t=clamp(b.prog/PUPA,0,1);
+  const body=mix('#e7b36b',toneCol(b),t*.75),ln='rgba(0,0,0,.28)';
+  let g=`<ellipse cx="100" cy="88" rx="64" ry="34" fill="#1d130b"/><ellipse cx="100" cy="88" rx="58" ry="29" fill="#4a3524"/>`;
+  g+=`<g transform="rotate(-6 100 88)">`;
+  for(let i=6;i>=0;i--){
+    const x=72+i*11.5;
+    g+=`<ellipse cx="${f1(x)}" cy="88" rx="${f1(8.5-i*.35)}" ry="${f1(14-i*.9)}" fill="${body}" stroke="${ln}" stroke-width="1"/>`;
+  }
+  g+=`<ellipse cx="60" cy="88" rx="11" ry="10" fill="${body}" stroke="${ln}" stroke-width="1"/>`;
+  if(b.sex==='m')g+=`<path d="M52 83 Q40 78 38 88 M52 93 Q40 98 38 88" stroke="${mix(body,'#000000',.2)}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  g+=`<path d="M70 98 l-4 8 M82 102 l-3 8 M94 102 l-2 8" stroke="${body}" stroke-width="3" stroke-linecap="round"/>`;
+  g+=`</g>`;
+  return g;
+}
+function eggG(){
+  return `<ellipse cx="100" cy="88" rx="17" ry="11" fill="#22160e"/><ellipse cx="100" cy="89" rx="7.5" ry="5.6" fill="#f6f0dc" stroke="#d8cfae" stroke-width="1"/><ellipse cx="98" cy="87" rx="2.2" ry="1.4" fill="#fff" opacity=".7"/>`;
+}
+
+function artSVG(b,opt){
+  opt=opt||{};
+  const sp=SP[b.sp],r=seed(b.id*7919+13);
+  let inner='';
+  switch(b.stage){
+    case'egg':inner=eggG();break;
+    case'larva':inner=`<g class="${b.wan?'wander':''}">${larvaG(b,sp)}</g>`;break;
+    case'pupa':inner=pupaG(b,sp);break;
+    case'dead':inner=`<g transform="rotate(180 100 85)" opacity=".6">${adultG(Object.assign({},b,{stage:'adult'}),sp).replace('class="sway"','')}</g>`;break;
+    default:inner=adultG(b,sp);
+  }
+  const bg=opt.bg===false?'<rect width="200" height="170" fill="#2b1d13"/>':bgSVG(b,r);
+  return`<svg viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(bname(b))}" preserveAspectRatio="xMidYMid slice">${bg}${inner}</svg>`;
+}
+function artKey(b){
+  switch(b.stage){
+    case'adult':case'dead':return[b.stage,b.size,b.sex,b.col,b.cs,b.mat,b.jk,Math.round(b.food/8),(b.mu||[]).join(''),b.tone==null?'':Math.round(b.tone*20),b.sp==='ougon'?Math.round((b.moist||0)/8):''].join('|');
+    case'larva':return['l',Math.round(b.w/pkOf(b)*40),b.kind,b.sex,b.wan?'w':''].join('|');
+    case'pupa':return['p',Math.round(b.prog),b.sex].join('|');
+    default:return b.stage;
+  }
+}
+
+/* ---------- actions ---------- */
+function pay(n){if(S.coins<n){toast('ptが足りません');sfx('err');return false;}S.coins-=n;return true;}
+let fxT=0,nbBook=0,nbPg=1;
+function fx(kind){
+  const a=$('sArt');if(!a)return;
+  const now=Date.now();
+  if(kind==='mist'){if(now-fxT<220)return;fxT=now;}
+  const items=[];
+  if(kind==='mist'){for(let i=0;i<6;i++){const d=document.createElement('span');d.className='drop';d.style.left=(8+Math.random()*84)+'%';d.style.animationDelay=(Math.random()*.2)+'s';items.push(d);}}
+  else{for(let i=0;i<5;i++){const d=document.createElement('span');d.className='spark';d.textContent=kind==='clean'?'✨':kind==='jelly'?'🍯':'🌱';d.style.left=(15+Math.random()*70)+'%';d.style.top=(20+Math.random()*50)+'%';d.style.animationDelay=(Math.random()*.3)+'s';items.push(d);}}
+  items.forEach(i=>a.appendChild(i));
+  setTimeout(()=>items.forEach(i=>i.remove()),1400);
+}
+function doPair(aid,bid){
+  const a=byId(aid),b=byId(bid);
+  if(!a||!b||!eligible(a)||!eligible(b)||a.sp!==b.sp||a.sex===b.sex)return;
+  const f=a.sex==='f'?a:b,m=a.sex==='m'?a:b;
+  const bad=reqs(f).find(r=>!r.ok);
+  if(bad){toast('条件がたりません: '+bad.t);sfx('err');return;}
+  /* 気性の荒いオスはメスを傷つけることがある(アゴ縛り中は起きない) */
+  const ag=SP[f.sp].ag||0;
+  if(ag>0&&!m.bind&&Math.random()<ag*.45*Math.pow(m.tem||0,1.5)*(.3+.7*ratioOf(m))){
+    if(Math.random()<.15+.5*(m.tem||0)){
+      m.cool=8;die(f,'ペアリング中にオスに噛まれた');
+      log(`${bname(m)}が${bname(f)}を噛んでしまった…(アゴ縛りで防げます)`,'bad');toast('事故! メスが死んでしまいました');return;
+    }
+    f.inj=true;log(`${bname(m)}が${bname(f)}を傷つけた。メスの産卵数が減ってしまった`,'bad');toast('事故! メスがけがをしました(産卵数が減ります)');
+  }
+  if(SP[f.sp].lay==='wood')S.wood--;
+  f.mated=true;f.fcol=m.col;f.fcs=m.cs;f.eggTimer=rnd(10,15);m.cool=8;
+  f.mate={id:m.id,tem:m.tem,tone:m.tone,anc:Object.assign({},m.anc),inb:m.inb,gen:m.gen,gp:m.gp,ratio:ratioOf(m),mu:m.mu.filter(x=>x==='we'||x==='re'),col:m.col,cs:m.cs,size:m.size,mark:m.mark||'',mc:m.mc==null?-1:m.mc};
+  const kin=kinship(f,f.mate);
+  log(`${bname(m)}と${bname(f)}がペアリング。約${Math.round(f.eggTimer)}日後に産卵予定${kin>=.12?`(血が近い組み合わせ! 近縁度${Math.round(kin*100)}%)`:''}`,kin>=.12?'bad':'good');
+  toast(kin>=.12?'ペアリング成功(血が近いので近交度に注意)':'ペアリング成功!');sfx('pair');
+}
+function collect(){
+  const se=seasonIdx(S.day);
+  if(se===3){toast('冬は採集できません(越冬個体を譲ってもらえることがあります)');sfx('err');return;}
+  if(Date.now()<S.catchAt){toast('まだ準備中です');sfx('err');return;}
+  if(free()<1){toast('空きスロットがありません');sfx('err');return;}
+  S.catchAt=Date.now()+45000;
+  let cnt;
+  if(se===1){const r=Math.random();cnt=r<.15?0:r<.5?1:r<.8?2:3;}
+  else cnt=Math.random()<(se===0?.35:.4)?0:1;
+  cnt=Math.min(cnt,free());
+  if(cnt<1){log(`採集に行ったが、今回は空振り…(${seasonOf(S.day)})`);toast('今回は空振りでした…');sfx('miss');return;}
+  const got=[];
+  for(let i=0;i<cnt;i++){
+    const id=wpick(WILD),sp=SP[id],sex=Math.random()<.5?'m':'f';
+    const b=mk(id,sex,'adult',{adultAge:adultAgeOf(sp),rd:true,rp:true,q:rnd(.15,.7),wd:true,gen:0,gp:rnd(.3,.7),food:80,moist:80});
+    b.size=calcSize(sp,sex,b.q,b.gp);pedSync(b);
+    addBeetle(b);seen(id,sex,b.size);got.push(b);
+    log(`採集成功! ${bname(b)}(WD) ${b.size}mm を見つけた`,'good');
+  }
+  toast(cnt===1?`${SP[got[0].sp].name}${got[0].sex==='m'?'♂':'♀'} ${got[0].size}mm を採集!`:`${cnt}匹を採集しました!`);sfx('catch');
+}
+function buyEgg(id){
+  const sp=SP[id];
+  if(free()<1){toast('空きスロットがありません');sfx('err');return;}
+  if(!pay(sp.price))return;
+  const b=mk(id,Math.random()<.5?'m':'f','egg',{gen:1,gp:rnd(.4,.8),origin:'shop'});
+  addBeetle(b);seen(id);
+  log(`${sp.name}の卵(${bname(b)})を購入した`);
+  toast(`${sp.name}の卵を入手!`);sfx('buy');
+}
+const adultPrice=sp=>Math.round(sp.price*2+25),pairPrice=sp=>Math.round(sp.price*3.5+40);
+function mkAdult(id,sex,grp){
+  const sp=SP[id];
+  const b=mk(id,sex,'adult',{adultAge:adultAgeOf(sp),rd:true,rp:true,q:rnd(.3,.65),gen:1,gp:rnd(.4,.75),food:80,moist:80,origin:'shop',grp:grp||''});
+  b.size=calcSize(sp,sex,b.q,b.gp);pedSync(b);seen(id,sex,b.size);
+  return b;
+}
+function buyAdult(id,kind){
+  const sp=SP[id],n=kind==='p'?2:1,cost=kind==='p'?pairPrice(sp):adultPrice(sp);
+  if(free()<n){toast('空きスロットが足りません');sfx('err');return;}
+  if(!pay(cost))return;
+  const g='g'+S.serial,list=kind==='p'?[mkAdult(id,'m',g),mkAdult(id,'f',g)]:[mkAdult(id,kind)];
+  list.forEach(b=>addBeetle(b));
+  log(`${sp.name}の成虫${kind==='p'?'ペア':(kind==='m'?'♂':'♀')}を購入した`);
+  toast(`${sp.name}の成虫${kind==='p'?'ペア':(kind==='m'?'♂':'♀')}を入手!`);sfx('buy');
+}
+function removeB(id,fate){
+  const b=byId(id);
+  if(b)pedSync(b);
+  if(fate&&S.ped[id]){S.ped[id].f=fate;if(!S.ped[id].e)S.ped[id].e=Math.floor(S.day);}
+  S.beetles=S.beetles.filter(b=>b.id!==id);
+  if(sheetId===id)closeSheet();
+}
+/* 棚の中で b を target の位置へ(target が null なら末尾へ) */
+function placeB(b,target){
+  const sh=b.sh;
+  const list=S.beetles.filter(x=>x.sh===sh&&x!==b);
+  let k=target?list.indexOf(target):list.length;
+  if(target&&S.beetles.indexOf(b)<S.beetles.indexOf(target))k++;
+  list.splice(k<0?list.length:k,0,b);
+  /* 棚の中の並びだけ入れ替え、他の棚の並びはそのまま */
+  let li=0;const res=[];
+  for(const x of S.beetles){if(x.sh===sh)res.push(list[li++]);else res.push(x);}
+  S.beetles=res;
+}
+/* ---------- ドラッグ&ドロップ(長押しで持ち上げ。マウスは少し動かすと開始) ---------- */
+let drag=null,dragSuppress=false;
+function dragTargets(){
+  const bar=document.createElement('div');bar.id='dropBar';bar.className='dropbar';
+  let h='<span class="cap">ここに落とすと移動:</span>';
+  S.shelves.forEach((x,i)=>{if(i!==drag.b.sh)h+=`<div class="dropt" data-drop-shelf="${i}">${esc(x.name)}へ<small>空き${freeIn(i)}</small></div>`;});
+  if(S.cel.own&&!drag.b.cel&&drag.b.stage!=='dead')h+=`<div class="dropt" data-drop-cel="1">ワインセラーへ<small>${cellCount()}/${CEL_CAP}</small></div>`;
+  bar.innerHTML=h;document.body.appendChild(bar);
+}
+function dragBegin(){
+  const d=drag;d.on=true;
+  const r=d.el.getBoundingClientRect();
+  const g=d.el.cloneNode(true);g.id='dragGhost';g.className+=' ghost';g.removeAttribute('data-act');
+  g.style.width=r.width+'px';g.style.left=(d.x-r.width/2)+'px';g.style.top=(d.y-r.height/2)+'px';
+  document.body.appendChild(g);d.g=g;d.w=r.width;d.h=r.height;
+  d.el.classList.add('lifted');document.body.classList.add('dragging');
+  dragTargets();
+  if(navigator.vibrate)try{navigator.vibrate(15);}catch(e){}
+  sfx('tap');
+}
+function dragHit(x,y,d){
+  d=d||drag;
+  document.querySelectorAll('.droph').forEach(e=>e.classList.remove('droph'));
+  const el=document.elementFromPoint(x,y);if(!el)return null;
+  const t=el.closest('.dropt,[data-drop-shelf],.tile[data-id],.tile.empty');
+  if(t&&t!==d.el)t.classList.add('droph');
+  return t===d.el?null:t;
+}
+function dragEnd(cancel){
+  const d=drag;drag=null;
+  clearTimeout(d&&d.t);
+  if(!d||!d.on)return;
+  dragSuppress=true;setTimeout(()=>{dragSuppress=false;},350);
+  const t=cancel?null:dragHit(d.x,d.y,d);
+  if(d.g)d.g.remove();const bar=$('dropBar');if(bar)bar.remove();
+  document.body.classList.remove('dragging');d.el.classList.remove('lifted');
+  document.querySelectorAll('.droph').forEach(e=>e.classList.remove('droph'));
+  const b=d.b;
+  if(t&&byId(b.id)){
+    if(t.dataset.dropShelf!=null){const i=+t.dataset.dropShelf;
+      if(freeIn(i)>0){b.sh=i;toast(`${bname(b)}を${S.shelves[i].name}に移しました`);sfx('tap');}else{toast('その棚に空きがありません');sfx('err');}}
+    else if(t.dataset.dropCel){if(cellCount()>=CEL_CAP){toast('ワインセラーがいっぱいです');sfx('err');}else{b.cel=true;toast(`${bname(b)}をワインセラーに入れました`);sfx('tap');}}
+    else if(t.classList.contains('empty')){placeB(b,null);sfx('tap');}
+    else{const o=byId(+t.dataset.id);if(o&&o!==b){placeB(b,o);sfx('tap');}}
+  }
+  render();save();
+}
+document.addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.tile[data-id]');
+  if(!el||e.button>0||drag)return;
+  const b=byId(+el.dataset.id);if(!b)return;
+  drag={el,b,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,on:false,pt:e.pointerType,id:e.pointerId};
+  drag.t=setTimeout(()=>{if(drag&&!drag.on)dragBegin();},e.pointerType==='mouse'?600:320);
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id)return;
+  drag.x=e.clientX;drag.y=e.clientY;
+  const mv=Math.hypot(drag.x-drag.x0,drag.y-drag.y0);
+  if(!drag.on){
+    if(drag.pt==='mouse'&&mv>6){clearTimeout(drag.t);dragBegin();}
+    else if(drag.pt!=='mouse'&&mv>10){clearTimeout(drag.t);drag=null;}
+    if(!drag||!drag.on)return;
+  }
+  drag.g.style.left=(drag.x-drag.w/2)+'px';drag.g.style.top=(drag.y-drag.h/2)+'px';
+  const ht=dragHit(drag.x,drag.y),onBar=ht&&ht.classList.contains('dropt');
+  if(!onBar){if(drag.y<70)window.scrollBy(0,-12);else if(drag.y>window.innerHeight-180)window.scrollBy(0,12);}
+});
+window.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id)dragEnd(false);});
+window.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.id)dragEnd(!drag.on);});
+document.addEventListener('touchmove',e=>{if(drag&&drag.on)e.preventDefault();},{passive:false});
+document.addEventListener('click',e=>{if(dragSuppress&&e.target.closest('.tile,.dropt')){e.stopPropagation();e.preventDefault();dragSuppress=false;}},true);
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.tile[data-id]'))e.preventDefault();});
+function moveB(b,d){
+  const idx=[];S.beetles.forEach((x,i)=>{if(x.sh===b.sh)idx.push(i);});
+  const k=idx.indexOf(S.beetles.indexOf(b)),j=k+d;
+  if(j<0||j>=idx.length)return;
+  const A=idx[k],B=idx[j];
+  [S.beetles[A],S.beetles[B]]=[S.beetles[B],S.beetles[A]];
+}
+/* 霧吹き: 長押しで湿度を足す */
+let holdT=0,holdId=null;
+function mistTick(){
+  const b=byId(holdId);
+  if(!b||b.stage!=='adult'){holdStop();return;}
+  b.moist=Math.min(100,b.moist+3);
+  b.dT=Math.max(-2.5,(b.dT||0)-.08);
+  fx('mist');sfx('mist');
+  if(sheetId!=null)updSheet();
+}
+function holdStart(id){holdStop();holdId=id;mistTick();holdT=setInterval(mistTick,100);}
+function holdStop(){
+  if(holdT){clearInterval(holdT);holdT=0;holdId=null;save();}
+  document.querySelectorAll('.hold.on').forEach(e=>e.classList.remove('on'));
+}
+/* アゴ縛りのスキルチェック: 左右に揺れる針を真ん中で止める */
+let jg=null;
+function jawSpeed(b){const ag=SP[b.sp].ag||0;return .5+.9*ag*(.4+.8*(b.tem||0));}
+function jawPos(){const p=((performance.now()-jg.t0)/1000*jg.sp)%2;return p<1?p:2-p;}
+function jawStart(b){
+  jawClose();
+  const z=.2,zl=.5-z/2;
+  const el=document.createElement('div');el.id='jawG';el.className='jawg';
+  el.innerHTML=`<div class="jawbox"><b>アゴ縛り: ${esc(bname(b))}</b><p class="cap">せいかく: ${esc(temName(b))}。針が緑の範囲にあるときに止めよう</p>
+    <div class="jtrack"><u style="left:${zl*100}%;width:${z*100}%"></u><i id="jawN"></i></div>
+    <div class="btns"><button class="btn" data-act="jawstop">止める!</button></div></div>`;
+  document.body.appendChild(el);
+  jg={id:b.id,t0:performance.now(),sp:jawSpeed(b),zl,zr:zl+z,raf:0};
+  const tick=()=>{if(!jg)return;const n=$('jawN');if(n)n.style.left=(jawPos()*100)+'%';jg.raf=requestAnimationFrame(tick);};
+  tick();sfx('open');
+}
+function jawClose(){if(jg&&jg.raf)cancelAnimationFrame(jg.raf);jg=null;const e=$('jawG');if(e)e.remove();}
+function jawStop(){
+  if(!jg)return;
+  const x=jawPos(),ok=x>=jg.zl&&x<=jg.zr,b=byId(jg.id);
+  jawClose();
+  if(!b)return;
+  if(ok){b.bind=true;log(`${bname(b)}のアゴ縛りに成功した`,'good');toast('アゴ縛り成功! 事故が起きなくなりました');sfx('emerge');}
+  else{toast('失敗… もう一度挑戦できます');sfx('err');}
+  if(sheetId!=null)updSheet();
+}
+function act(a,el){
+  const id=el&&el.dataset.id?+el.dataset.id:null;
+  const b=id!=null?byId(id):null;
+  switch(a){
+    case'tab':tab=el.dataset.v;confirmAct=null;closeSheet();render();window.scrollTo(0,0);sfx('tap');break;
+    case'open':openSheet(id);sfx('open');break;
+    case'ped':openPed(id);sfx('open');break;
+    case'close':closeSheet();sfx('tap');break;
+    case'patch':openPatch();sfx('open');break;
+    case'away':openAway();sfx('open');break;
+    case'exportsave':{
+      save();const txt=JSON.stringify(S),dt=new Date(),p=n=>String(n).padStart(2,'0');
+      const name=`kuwagata-sou-save-${dt.getFullYear()}${p(dt.getMonth()+1)}${p(dt.getDate())}.json`;
+      try{const u=URL.createObjectURL(new Blob([txt],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast('セーブを書き出しました');}
+      catch(e){toast('書き出しに失敗しました');}
+      sfx('tap');break;}
+    case'importsave':{const f=$('impFile');if(f){f.value='';f.click();}break;}
+    case'jaw':if(b&&b.sex==='m'&&!b.bind&&pay(JAW_PRICE))jawStart(b);break;
+    case'jawstop':jawStop();break;
+    case'jawoff':if(b&&b.bind){b.bind=false;log(`${bname(b)}のアゴ縛りを解いた`);toast('アゴ縛りを解きました');sfx('tap');}break;
+    case'speed':S.speed=+el.dataset.v;sfx('tap');break;
+    case'aud':{const k=el.dataset.v;S.audio[k]=!S.audio[k];audGain();if(k==='sfx'&&S.audio.sfx)sfx('tap');break;}
+    case'hint':S.hint=false;render();break;
+    case'collect':collect();break;
+    case'evsub':evSub=el.dataset.v;confirmAct=null;sfx('tap');break;
+    case'dexsub':dexSub=el.dataset.v;sfx('tap');break;
+    case'ac':SH().ac.on=!SH().ac.on;sfx('tap');break;
+    case'actemp':SH().ac.t=clamp(SH().ac.t+(+el.dataset.d),AC_MIN,AC_MAX);sfx('tap');break;
+    case'shelf':{const n=S.shelves.length;S.cur=(S.cur+(+el.dataset.d)+n)%n;confirmAct=null;sfx('tap');break;}
+    case'setmark':if(b){b.mark=el.dataset.k;pedSync(b);sfx('tap');}break;
+    case'setmc':if(b){b.mc=+el.dataset.c;pedSync(b);sfx('tap');}break;
+    case'mvl':if(b){moveB(b,-1);sfx('tap');}break;
+    case'mvr':if(b){moveB(b,1);sfx('tap');}break;
+    case'toshelf':if(b){const i=+el.dataset.s;if(freeIn(i)>0){b.sh=i;S.cur=i;sfx('tap');toast(`${bname(b)}を${S.shelves[i].name}に移しました`);}else{toast('その棚に空きがありません');sfx('err');}}break;
+    case'celtoggle':if(S.cel.own){S.cel.on=!S.cel.on;sfx('tap');}break;
+    case'celt':S.cel.t=clamp(S.cel.t+(+el.dataset.d),CEL_MIN,CEL_MAX);sfx('tap');break;
+    case'cellin':if(b&&S.cel.own){if(cellCount()>=CEL_CAP){toast('ワインセラーがいっぱいです');sfx('err');}else{b.cel=true;sfx('tap');toast(`${bname(b)}をワインセラーに入れました`);}}break;
+    case'cellout':if(b){b.cel=false;sfx('tap');}break;
+    case'kind':{const k=el.dataset.k;if(b&&KINDS[k]&&pay(KINDS[k].price)){b.food=100;b.kind=k;fx('feed');sfx('feed');if(b.wan){b.wan=false;log(`${bname(b)}がエサ交換で落ち着いた`,'good');toast(`${KINDS[k].n}に交換しました。暴れがおさまりました`);}else toast(`${KINDS[k].n}に交換しました`);}break;}
+    case'jelly':{const k=el.dataset.k;if(b&&JELLY[k]&&pay(JELLY[k].price)){b.food=100;b.jk=k;fx('jelly');sfx('jelly');}break;}
+    case'clean':if(b){b.clean=100;fx('clean');sfx('clean');}break;
+    case'setmat':{
+      const m=el.dataset.m;if(!b)break;
+      if(b.mat===m){toast('すでにこのマットです');break;}
+      if(pay(MATS[m].price)){b.mat=m;b.clean=100;b.moist=30;fx('feed');sfx('feed');toast(`${MATS[m].n}に交換しました(湿度が30にもどりました)`);}
+      break;}
+    case'pair':doPair(+el.dataset.a,+el.dataset.b);break;
+    case'buy':buyEgg(el.dataset.sp);break;
+    case'buywood':if(pay(WOOD_PRICE)){S.wood++;sfx('buy');toast('産卵木を1本買いました');}break;
+    case'humidbuy':if(!SH().humidOwn&&pay(HUMID_PRICE)){SH().humidOwn=true;SH().humid=true;sfx('buy');toast(`${SH().name}に加湿器を設置しました`);}break;
+    case'humidtoggle':if(SH().humidOwn){SH().humid=!SH().humid;sfx('tap');}break;
+    case'buynb':if(S.nb<NB_MAX&&pay(NB_PRICE)){S.nb++;nbBook=S.nb-1;nbPg=1;syncLines();sfx('buy');toast(`血統ノートを買いました(${S.nb}冊目)`);}break;
+    case'nbbook':nbBook=+el.dataset.v;nbPg=1;sfx('tap');break;
+    case'nbpg':nbPg=+el.dataset.v;sfx('tap');break;
+    case'nbstep':{const gp=clamp(nbBook*NB_PAGES+nbPg+(+el.dataset.d),1,nbCap());nbBook=Math.floor((gp-1)/NB_PAGES);nbPg=(gp-1)%NB_PAGES+1;sfx('tap');break;}
+    case'celbuy':if(!S.cel.own&&pay(CEL_PRICE)){S.cel.own=true;S.cel.on=true;sfx('buy');toast('ワインセラーを導入しました');}break;
+    case'slot':{const sh=SH(),cost=60*(sh.slots-5);if(sh.slots<16&&pay(cost)){sh.slots+=2;sfx('buy');toast(`${sh.name}のスロットが2つ増えました`);}break;}
+    case'buyshelf':{const cost=250*S.shelves.length;if(S.shelves.length<5&&pay(cost)){S.shelves.push(newShelf('棚'+(S.shelves.length+1)));S.cur=S.shelves.length-1;sfx('buy');toast('新しい棚を設置しました');}break;}
+    case'buyadult':buyAdult(el.dataset.sp,el.dataset.k);break;
+    case'gacha':gachaSpin();break;
+    case'enter':
+      if(b&&S.ct&&cInfo().open&&cElig(b,cInfo().sp)){
+        S.ct.entry={id:b.id,name:bname(b),sc:Math.round(cScore(b)*10)/10};
+        sfx('pair');toast(`${bname(b)}をエントリーしました`);
+      }
+      break;
+    case'deliver':{
+      const q=S.reqs.find(r=>r.id===+el.dataset.q);
+      if(!q||!b||!reqOK(q,b))break;
+      const key='d'+q.id+'-'+b.id;
+      if(confirmAct!==key){confirmAct=key;break;}
+      S.coins+=q.rw;S.stat.req++;S.reqs=S.reqs.filter(r=>r!==q);
+      log(`依頼を達成! ${bname(b)}を納品 +${q.rw}pt`,'good');toast(`依頼達成! +${q.rw}pt`);sfx('sell');
+      removeB(b.id,'v');confirmAct=null;
+      break;}
+    case'release':
+      if(confirmAct!=='rel'){confirmAct='rel';actsKey='';}
+      else if(b){log(`${bname(b)}を手放した`);removeB(id,'r');confirmAct=null;}
+      break;
+    case'sell':
+      if(confirmAct!=='sell'){confirmAct='sell';actsKey='';}
+      else if(b){const p=saleValue(b);S.coins+=p;log(`${bname(b)}を売った +${p}pt`,'good');toast(`${bname(b)}を売りました +${p}pt`);sfx('sell');removeB(id,'o');confirmAct=null;}
+      break;
+    case'bury':
+      if(b){
+        let gain=0;
+        if(b.natural&&b.size>0){
+          const p=Math.round(value(b)*.6);S.coins+=p;gain=p;
+          S.spec.push({id:b.id,sp:b.sp,sex:b.sex,size:b.size,col:b.col,cs:b.cs||null,mu:(b.mu||[]).slice(),gen:b.gen,wd:b.wd,inb:b.inb,pa:b.pa,ma:b.ma,day:Math.floor(S.day),life:Math.round(b.adultAge)});
+          log(`${bname(b)}を標本にして血統ノートに加えた +${p}pt`,'good');sfx('sell');
+        }else log(`${bname(b)}を埋葬した`);
+        removeB(id,b.natural&&b.size>0?'p':'b');
+        if(gain&&S.ped[id]&&S.ped[id].f==='p'){
+          syncLines();
+          const k=S.ped[id].bl,r=k&&S.bl[k];
+          toast(r&&r.pg?`標本にしました +${gain}pt(血統ノート p.${r.pg} に記録)`:`標本にしました +${gain}pt(血統ノートがいっぱいです。買い足すと記録されます)`);
+        }
+      }
+      break;
+    case'reset':
+      if(el.dataset.c!=='1'){el.dataset.c='1';el.textContent='本当に最初から? もう一度タップ';return;}
+      try{localStorage.removeItem(KEY);localStorage.removeItem(KEY2);localStorage.removeItem(KEY1);}catch(e){}
+      {const au=S.audio;fresh();S.audio=au;}tab='shelf';closeSheet();toast('最初から始めます');
+      break;
+  }
+  refresh(true);save();
+}
+
+/* ---------- rendering ---------- */
+const set=(id,t)=>{const e=$(id);if(e&&e.textContent!==t)e.textContent=t;};
+function segHTML(act,items,cur){
+  return`<div class="seg full" role="group">${items.map(i=>`<button data-act="${act}" data-v="${i[0]}" aria-pressed="${i[0]===cur}">${i[1]}</button>`).join('')}</div>`;
+}
+function tileHTML(b){
+  return`<button class="tile" data-act="open" data-id="${b.id}" aria-label="${esc(bname(b))}">
+    <div class="lid"></div><div class="art" data-key=""></div><span class="bdg"></span><span class="mkr"></span>
+    <div class="label"><b>${esc(bname(b))}</b><span class="st"></span></div>
+    <div class="mini"><i></i></div></button>`;
+}
+function envHTML(){
+  const sh=SH();
+  let h=`<div class="card" id="envCard"><h2>お部屋の環境 <span class="cap" id="eWx"></span></h2>
+    <div class="envgrid"><div class="env"><small>外気温</small><b id="eOut"></b></div><div class="env"><small>${esc(sh.name)}の室温</small><b id="eRoom"></b></div><div class="env"><small>${esc(sh.name)}の湿度</small><b id="eRh"></b></div></div>
+    <div class="ctl"><div class="lb">エアコン(${esc(sh.name)})<small id="acCost"></small></div>
+      <div class="step"><button data-act="actemp" data-d="-1" aria-label="設定温度を下げる">−</button><b id="acT"></b><button data-act="actemp" data-d="1" aria-label="設定温度を上げる">＋</button>
+      <button class="btn ghost sm" id="acBtn" data-act="ac"></button></div></div>`;
+  h+=sh.humidOwn
+    ?`<div class="ctl"><div class="lb">加湿器(${esc(sh.name)})<small>湿度の減りを大きく抑え、50まで自動で補給 / 室温−1°C / 汚れやすい</small></div><button class="btn ghost sm" id="hmBtn" data-act="humidtoggle"></button></div>`
+    :`<div class="ctl"><div class="lb">加湿器<small>${esc(sh.name)}には未設置。ショップで購入できます</small></div></div>`;
+  h+=S.cel.own
+    ?`<div class="ctl"><div class="lb">ワインセラー(全棚共通)<small id="clN"></small></div>
+      <div class="step"><button data-act="celt" data-d="-1" aria-label="設定温度を下げる">−</button><b id="clT"></b><button data-act="celt" data-d="1" aria-label="設定温度を上げる">＋</button>
+      <button class="btn ghost sm" id="clBtn" data-act="celtoggle"></button></div></div>`
+    :`<div class="ctl"><div class="lb">ワインセラー<small>低温種に必須。ショップで購入できます</small></div></div>`;
+  return h+`<p class="cap" id="shWarn" style="margin:8px 0 0"></p></div>`;
+}
+function updEnv(){
+  if(!$('envCard'))return;
+  const W=WX[S.wx],sh=SH();
+  set('eWx',`${W.i} ${W.n} ・ ${seasonOf(S.day)}`);
+  set('eOut',S.out.toFixed(1)+'°C');
+  set('eRoom',roomT(sh).toFixed(1)+'°C');
+  set('eRh',Math.round(sh.rh)+'%');
+  set('acT',sh.ac.t+'°C');
+  set('acCost',sh.ac.on?`電気代 約${acCost(sh).toFixed(1)}pt/日`:'OFF(室温は天気で変わります)');
+  const ab=$('acBtn');if(ab){set('acBtn',sh.ac.on?'ON':'OFF');ab.classList.toggle('ghost',!sh.ac.on);}
+  const hb=$('hmBtn');if(hb){set('hmBtn',sh.humid?'ON':'OFF');hb.classList.toggle('ghost',!sh.humid);}
+  const cb=$('clBtn');
+  if(cb){set('clBtn',S.cel.on?'ON':'OFF');cb.classList.toggle('ghost',!S.cel.on);set('clT',S.cel.t+'°C');
+    set('clN',`収容 ${cellCount()} / ${CEL_CAP}${S.cel.on?` ・ 電気代 約${celCost().toFixed(1)}pt/日`:' ・ 停止中'}`);}
+  const w=S.shelves.map((x,i)=>i!==S.cur&&S.beetles.some(b=>b.sh===i&&attn(b))?x.name:'').filter(Boolean);
+  set('shWarn',w.length?`⚠ ${w.join('・')}に要お世話の子がいます`:'');
+}
+function shelfHTML(){
+  const sh=SH(),n=S.shelves.length;
+  let h='';
+  if(S.hint){
+    h+=`<div class="card"><h2>ようこそ、くわがた荘へ</h2>
+      <p>最初はコクワガタのペアがいます。ゼリーをあげて元気にして、ペアリングで卵を産ませよう。幼虫が育って羽化するまでが1サイクル。温度・湿度・清潔の3つを見ながらお世話します。</p>
+      <div class="btns"><button class="btn ghost" data-act="hint">わかった</button></div></div>`;
+  }
+  h+=`<div class="shnav"><button data-act="shelf" data-d="-1" aria-label="前の棚" ${n<2?'disabled':''}>◀</button><div><b>${esc(sh.name)}</b><small>${S.cur+1} / ${n}${n<2?'(棚はショップで増やせます)':''}</small></div><button data-act="shelf" data-d="1" aria-label="次の棚" ${n<2?'disabled':''}>▶</button></div>`;
+  h+=envHTML();
+  const mine=S.beetles.filter(b=>b.sh===S.cur);
+  h+=`<div class="shelfhead"><b>${esc(sh.name)} ${mine.length} / ${sh.slots}</b><button class="btn" id="catchBtn" data-act="collect">採集に行く</button></div>`;
+  h+=`<div class="chips"><span>産卵木 ${S.wood}本</span><span>加湿器 ${sh.humidOwn?(sh.humid?'ON':'OFF'):'なし'}</span><span>ワインセラー ${S.cel.own?(S.cel.on?'ON':'OFF'):'なし'}</span></div>`;
+  h+=`<div class="grid">`;
+  for(const b of mine)h+=tileHTML(b);
+  for(let i=0;i<freeIn(S.cur);i++)h+=`<div class="tile empty">空きスロット</div>`;
+  h+=`</div>`;
+  h+=`<div class="card" style="margin-top:16px"><h2>できごと</h2>${lastAway?`<div class="btns"><button class="btn ghost sm" data-act="away">留守中のできごと(約${lastAway.days}日)を見る</button></div>`:''}<ul class="log">`;
+  if(!S.log.length)h+=`<li>まだ何もありません</li>`;
+  for(const l of S.log.slice(0,7))h+=`<li><span class="d">${l.d}日目</span><span class="${l.k}">${esc(l.t)}</span></li>`;
+  h+=`</ul></div>`;
+  h+=`<div class="card"><details><summary>あそびかた</summary><ul>
+    <li>たまご → 幼虫 → 前蛹 → 蛹 → 成虫 と育ちます。1日 = 30秒(速さボタンで加速)。アプリを閉じている間は、さらに10分の1の速さでゆっくり進みます。</li>
+    <li><b>棚</b>: ◀▶で棚を切りかえます。エアコン・加湿器・スロット数は棚ごとに別です。虫のタイルを長押し(パソコンはドラッグ)すると持ち上がり、別のタイルや空きスロットに落とすと並びを変えられます。画面下に出る「〇〇へ」に落とすと別の棚やワインセラーへ移せます(詳細画面からも可)。ワインセラーは全棚共通です。</li>
+    <li><b>目印</b>: 詳細画面で記号と色をつけられます。卵は母親(いなければ父親)の目印を引きつぐので、血統ごとに色分けすると見分けやすくなります。</li>
+    <li><b>温度</b>: 天気と季節で毎日変わります(雨の日は湿度が高く温度が低め)。エアコン(電気代あり)で室温を、ワインセラーで個体ごとの温度を管理できます。種類ごとに適温があり、外れると体力が減ります。ミヤマ・ボイレアウイは低温、色虫は寒さが苦手。</li>
+    <li><b>湿度</b>: 成虫のケースの湿度は少しずつ減ります。霧吹きボタンを<b>長押し</b>すると足せます(わずかに温度も下がります)。マットを交換すると30にもどります。高すぎる(90超)と蒸れます。加湿器は減りを大きく抑え、50まで自動で補給します。ロングゼリーも湿度を保ちます。</li>
+    <li><b>清潔</b>: マットの種類・ゼリー・湿度・温度で汚れやすさが変わります。ケース掃除で回復。</li>
+    <li>前蛹・蛹はそっとしておく時期。幼虫のエサは発酵マット・菌糸ビン(ヒラタケ/カワラ)・大容量マットボトルから選べます。<b>種類によって合うエサが違います</b>(ミヤマは菌糸で育たず、タランドゥス・オウゴンオニはカワラ菌糸でしか育たない、など)。1齢のうちはどのエサでも育ちます。合うエサは図鑑の飼育メモで確認できます。</li>
+    <li><b>羽化後</b>は種類ごとに、蛹室で休眠(後食まで)→成熟を待つ期間があります。オオクワガタ・シカクワガタの仲間は特に長く、ウエストウッディは最長です。</li>
+    <li><b>繁殖</b>: 同種の成熟したオスとメスが必要。材産みは産卵木、マット産みは産卵用マット。檜ペレットのメスは繁殖できません。子の体長は、同性の親から±30mm以内になります。</li>
+    <li><b>累代と近交</b>: 子はF1、F2…と累代を重ねます(野外採集はWD)。親戚どうしを組ませ続けると血が濃くなり、奇形・脱落・極小化・ホワイトアイ/レッドアイ・雌雄同体などが出やすくなります。ホワイトアイなどは高く売れることも。新しい血を入れると近交度は下がります。</li>
+    <li><b>色虫</b>(ニジイロ・パプアキンイロ): 体色のレア度とサイズで評価ランクが決まります。<b>ニジイロ</b>は「地色」(緑・赤・青・紫・黒)と「筋色」(赤・濃緑・濃赤・青紫・赤紫・黄緑)の2つの形質を持ち、どちらも親から受けつぎます(例: 緑地・濃緑筋)。地色ごとに出やすい筋色があり、組み合わせしだいで評価が変わります。<b>オウゴンオニ</b>は黄金一色で、艶(光沢)の度合いとサイズで決まります。</li>
+    <li><b>採集</b>: 夏は0〜3匹、春と秋は空振りが多め、冬はできません。冬は、越冬中の日本産クワガタや、羽化不全だけど良型の個体をもらえることがあります。</li>
+    <li>売値は種類の珍しさと大きさで決まります。高価な種類や低温を好む種類は、大型ほど値段が大きく跳ね上がります。成虫は寿命が短くなるほど売値が下がります。天寿をまっとうした個体は標本にして「図鑑 → 累代表」の血統ノートに残せます(1ページ1血統・血統名は自由に入力。ノートは1冊10ページで、ショップで最大5冊まで)。</li>
+    <li>「イベント」タブで、依頼・コンテスト(予告つき)・ガラポン・実績が見られます。</li></ul></details></div>`;
+  return h;
+}
+const MKF=v=>v==null?'○':v>=1.15?'◎':v>=.85?'○':v>0?'△':'×';
+function dexList(){
+  let h=`<div class="card"><p>入手した種類が登録されます。育てた最大サイズも記録されます。(${dexCount()} / ${ORDER.length}種)</p></div>`;
+  ORDER.forEach((id,i)=>{
+    const sp=SP[id],d=S.dex[id],known=!!d;
+    let col=null,cs=null;
+    if(sp.iri){const got=d&&d.cols?COLS[id].find(c=>d.cols[c.id]):null;col=(got||COLS[id][0]).id;}
+    if(id==='nijiiro'){const gs=d&&d.cs?NJS.find(c=>d.cs[c.id]):null;cs=(gs||NJS[0]).id;}
+    const fake={id:900+i,sp:id,sex:'m',stage:'adult',size:(d&&d.bm)?d.bm:sp.m[1]*.85,food:0,hp:100,col,cs,mat:'ferm',jk:'norm',mu:[]};
+    const mus=d&&d.mu?Object.keys(d.mu):[];
+    h+=`<article class="dexc ${known?'':'unk'}"><div class="art">${artSVG(fake)}</div><div class="dtxt">
+      <h3>${known?esc(sp.name):'？？？？？'}</h3>
+      <div class="sci">${known?esc(sp.sci):'未発見'}</div>
+      <div class="stars" aria-label="むずかしさ">${stars(sp.star)}</div>
+      ${known?`<p>${layName(sp)} / ♂ ${sp.m[0]}–${sp.m[1]}mm / ♀ ${sp.f[0]}–${sp.f[1]}mm</p>
+      <p>適温 ${sp.pref[0]}–${sp.pref[1]}°C ・ 羽化後 休眠${sp.rest}日+成熟${sp.ripe}日 ・ 寿命 約${sp.life}日</p>
+      <p>エサ: 発酵マット${MKF(sp.fm.mat)} / ヒラタケ菌糸${MKF(sp.fm.kin)} / カワラ菌糸${MKF(sp.fm.kaw)} / 大容量マット${MKF(sp.fm.big)}</p>
+      <p class="cap">${esc(sp.mm)}</p>
+      <p>最大記録 ♂ ${d.bm?d.bm+'mm':'—'} / ♀ ${d.bf?d.bf+'mm':'—'}　羽化 ${d.n}匹</p>
+      ${sp.iri?`<p>${sp.gloss?'艶':id==='nijiiro'?'地色':'体色'}: ${COLS[id].map(c=>d.cols&&d.cols[c.id]?c.n:'？').join(' / ')}</p>`:''}
+      ${id==='nijiiro'?`<p>筋色: ${NJS.map(c=>d.cs&&d.cs[c.id]?c.n:'？').join(' / ')}</p>`:''}
+      ${mus.length?`<p>確認した変異: ${mus.map(c=>MUN[c]).join('・')}</p>`:''}
+      <p>${esc(sp.blurb)}</p>`:`<p>採集かショップで手に入れよう。</p>`}
+    </div></article>`;
+  });
+  return h;
+}
+/* ---------- 累代表: 樹形図(SVG) ---------- */
+const NW=76,NH=108,GAPX=12,PGAP=26,LZ=48;
+const ORIG={wd:'',shop:'購入',gacha:'ガラポン',gift:'譲渡',bred:'',unk:'購入など'};
+const originOf=p=>p.o||(p.wd?'wd':(p.pa||p.ma)?'bred':'unk');
+const originTxt=p=>ORIG[originOf(p)]||'';
+function pedBodyCol(p){
+  const sp=SP[p.sp];
+  if(sp.cr)return mix(sp.cr[0],sp.cr[1],p.tn==null?.5:p.tn);
+  if(sp.iri){const l=COLS[p.sp],c=l.find(x=>x.id===p.col)||l[0];return c.st[Math.min(1,c.st.length-1)];}
+  return sp.hc&&sp.col?sp.col:sp.col;
+}
+function nodeSVG(id,x,y,sx,lab){
+  const cx=x+NW/2,ic=sx==='f'?'♀':'♂',p=id?S.ped[id]:null;
+  if(!p)return`<g class="gh"><ellipse cx="${cx}" cy="${y+36}" rx="11" ry="22" class="ghe"/><text x="${cx}" y="${y+42}" class="ght" text-anchor="middle">?</text><text x="${cx}" y="${y+82}" class="nt" text-anchor="middle">${ic}${id?'#'+id:''}</text><text x="${cx}" y="${y+95}" class="nt2" text-anchor="middle">${lab||(id?'記録なし':'親不明')}</text></g>`;
+  const sp=SP[p.sp],h=clamp(12+(p.sz||(sp.m[0]+sp.m[1])/2)*.45,18,60);
+  const top=y+8+(60-h)/2,bc=pedBodyCol(p),gone=['o','r','v','b'].includes(p.f);
+  const sc=p.sp==='nijiiro'&&p.cs?(NJS.find(s=>s.id===p.cs)||{}).c:null;
+  let g=`<g data-act="ped" data-id="${p.id}" role="button" tabindex="0" aria-label="${ic}#${p.id} ${esc(sp.name)}の詳細">`;
+  g+=`<rect class="cell ${p.f==='p'?'spec':''} ${gone?'gone':''}" x="${x}" y="${y}" width="${NW}" height="${NH}" rx="10"/><rect class="sx-${p.sx}" x="${x+12}" y="${y}" width="${NW-24}" height="4" rx="2"/>`;
+  g+=`<g opacity="${gone?.6:1}">`;
+  if(p.sx==='m')g+=`<path d="M${f1(cx-h*.07)} ${f1(top+h*.13)}Q${f1(cx-h*.3)} ${f1(top-h*.02)} ${f1(cx-h*.16)} ${f1(top-h*.1)}M${f1(cx+h*.07)} ${f1(top+h*.13)}Q${f1(cx+h*.3)} ${f1(top-h*.02)} ${f1(cx+h*.16)} ${f1(top-h*.1)}" fill="none" stroke="${bc}" stroke-width="${f1(Math.max(1.6,h*.06))}" stroke-linecap="round"/>`;
+  g+=`<ellipse class="bdy" cx="${f1(cx)}" cy="${f1(top+h*.64)}" rx="${f1(h*.21)}" ry="${f1(h*.36)}" fill="${bc}"/><ellipse class="bdy" cx="${f1(cx)}" cy="${f1(top+h*.2)}" rx="${f1(h*.12)}" ry="${f1(h*.1)}" fill="${bc}"/>`;
+  if(sc)g+=`<path d="M${f1(cx)} ${f1(top+h*.38)}L${f1(cx)} ${f1(top+h*.95)}" stroke="${sc}" stroke-width="${f1(Math.max(1.6,h*.07))}" stroke-linecap="round"/>`;
+  g+=`<ellipse cx="${f1(cx-h*.07)}" cy="${f1(top+h*.56)}" rx="${f1(h*.04)}" ry="${f1(h*.18)}" fill="#fff" opacity=".28"/>`;
+  g+=`</g>`;
+  if(p.mc>=0)g+=`<circle cx="${x+NW-9}" cy="${y+13}" r="6" fill="${MCOLS[p.mc]}" stroke="var(--bg)" stroke-width="2"/>`;
+  const mus=(p.mu||[]).map(c=>MUS[c]).join('');
+  const l3=[PF[p.f]||'',(!p.pa&&!p.ma&&!p.wd)?originTxt(p):'',mus].filter(Boolean).join('・');
+  g+=`<text x="${cx}" y="${y+82}" class="nt" text-anchor="middle">${p.sx==='f'?'♀':'♂'}#${p.id}${p.mk?`<tspan fill="${p.mc>=0?MCOLS[p.mc]:'currentColor'}"> ${p.mk}</tspan>`:''}</text>`;
+  g+=`<text x="${cx}" y="${y+94}" class="nt2" text-anchor="middle">${p.wd?'WD':'F'+p.g}${p.sz?' '+p.sz+'mm':''}</text>`;
+  g+=`<text x="${cx}" y="${y+105}" class="nt3" text-anchor="middle">${esc(l3)}</text></g>`;
+  return g;
+}
+function measFam(F,ups,ctx){
+  const kids=F.kids.slice().sort((a,b)=>a-b),cells=[];
+  for(const kid of kids){
+    if(ctx.shown.has(kid))continue;
+    const gs=(ctx.asP.get(kid)||[]).filter(g=>!ctx.done.has(g.k));
+    if(gs.length){
+      for(const g of gs){
+        if(ctx.done.has(g.k))continue;
+        ctx.done.add(g.k);
+        const sibs=[g.pa,g.ma].filter(id=>id&&kids.includes(id));
+        sibs.forEach(id=>ctx.shown.add(id));
+        cells.push({fam:measFam(g,sibs.length?sibs:[kid],ctx)});
+      }
+    }else cells.push({leaf:kid});
+  }
+  const cw=cells.map(c=>c.leaf?NW:c.fam.w);
+  const total=cw.reduce((a,b)=>a+b,0)+GAPX*Math.max(0,cells.length-1);
+  const w=Math.max(total,2*NW+PGAP);
+  const h=NH+(cells.length?LZ+Math.max(...cells.map(c=>c.leaf?NH:c.fam.h)):0);
+  return{F,ups,cells,cw,total,w,h};
+}
+function drawFam(b,x0,y,out){
+  const F=b.F,cx=x0+b.w/2,mx=cx-PGAP/2-NW,fx=cx+PGAP/2,an={};
+  out.push(nodeSVG(F.pa,mx,y,'m',F.lab));out.push(nodeSVG(F.ma,fx,y,'f'));
+  an[F.pa]=mx+NW/2;an[F.ma]=fx+NW/2;
+  const yb=y+NH+10,y2=y+NH+LZ-14,yt=y+NH+LZ,xs=[];
+  let ln=`M${mx+NW/2} ${y+NH}V${yb}H${fx+NW/2}V${y+NH}M${cx} ${yb}V${y2}`;
+  let xx=x0+(b.w-b.total)/2;
+  b.cells.forEach((c,i)=>{
+    if(c.leaf){const p=S.ped[c.leaf];out.push(nodeSVG(c.leaf,xx,yt,p?p.sx:'m'));xs.push(xx+NW/2);}
+    else{const a2=drawFam(c.fam,xx,yt,out);c.fam.ups.forEach(id=>{if(a2[id]!=null)xs.push(a2[id]);});}
+    xx+=b.cw[i]+GAPX;
+  });
+  if(xs.length){
+    ln+=`M${Math.min(cx,...xs)} ${y2}H${Math.max(cx,...xs)}`;
+    xs.forEach(x=>{ln+=`M${x} ${y2}V${yt}`;});
+  }
+  out.push(`<path class="ln" d="${ln}"/>`);
+  return an;
+}
+function svgWrap(w,h,body){
+  const W=Math.ceil(w)+24,H=Math.ceil(h)+16;
+  return`<svg class="pedsvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="group" aria-label="累代の樹形図"><g transform="translate(12 8)">${body}</g></svg>`;
+}
+function treeBlocks(specIds){
+  const keep=new Set();
+  const mark=id=>{if(!id||keep.has(id))return;keep.add(id);const p=S.ped[id];if(p){mark(p.pa);mark(p.ma);}};
+  specIds.forEach(mark);
+  if(!keep.size)return[];
+  const fam=new Map(),asP=new Map();
+  for(const id of keep){
+    const p=S.ped[id];if(!p||(!p.pa&&!p.ma))continue;
+    const k=p.pa+'-'+p.ma;
+    if(!fam.has(k))fam.set(k,{k,pa:p.pa,ma:p.ma,kids:[]});
+    fam.get(k).kids.push(id);
+  }
+  for(const f of fam.values())for(const pid of[f.pa,f.ma])if(pid){if(!asP.has(pid))asP.set(pid,[]);asP.get(pid).push(f);}
+  const isFounder=id=>!id||!S.ped[id]||(!S.ped[id].pa&&!S.ped[id].ma);
+  const ctx={asP,done:new Set(),shown:new Set()};
+  const nm=id=>id&&S.ped[id]?`${S.ped[id].sx==='f'?'♀':'♂'}#${id}`:'不明';
+  const blocks=[];
+  const roots=[...fam.values()].sort((a,b)=>Math.min(...a.kids)-Math.min(...b.kids));
+  const run=f=>{
+    if(ctx.done.has(f.k))return;
+    ctx.done.add(f.k);
+    const blk=measFam(f,[],ctx),out=[];drawFam(blk,0,0,out);
+    blocks.push({t:`${nm(f.pa)} × ${nm(f.ma)}`,svg:svgWrap(blk.w,blk.h,out.join(''))});
+  };
+  roots.filter(f=>isFounder(f.pa)&&isFounder(f.ma)).forEach(run);
+  roots.forEach(run);
+  const lone=[...keep].filter(id=>{const p=S.ped[id];return p&&p.f==='p'&&!p.pa&&!p.ma&&!asP.has(id);});
+  for(const id of lone){
+    const p=S.ped[id];
+    if(p.wd){
+      blocks.push({t:`${nm(id)}(野外採集)`,svg:svgWrap(NW,NH,nodeSVG(id,0,0,p.sx))});
+    }else{
+      const F={k:'lone'+id,pa:0,ma:0,kids:[id],lab:originTxt(p)||'購入など'};
+      const blk=measFam(F,[],ctx),out=[];drawFam(blk,0,0,out);
+      blocks.push({t:`${nm(id)}(${originTxt(p)||'親の記録なし'})`,svg:svgWrap(blk.w,blk.h,out.join(''))});
+    }
+  }
+  return blocks;
+}
+function treeHTML(spId){
+  const ids=Object.values(S.ped).filter(p=>p.sp===spId&&p.f==='p').map(p=>p.id);
+  return treeBlocks(ids).map(b=>b.svg).join('');
+}
+function specList(){
+  const lines=syncLines(),cap=nbCap();
+  nbBook=clamp(nbBook,0,S.nb-1);nbPg=clamp(nbPg,1,NB_PAGES);
+  const gp=nbBook*NB_PAGES+nbPg;
+  const byPg=new Map();lines.forEach(l=>{const pg=S.bl[l.key].pg;if(pg)byPg.set(pg,l);});
+  const wait=lines.filter(l=>!S.bl[l.key].pg);
+  let h=`<div class="card"><h2>血統ノート <span class="cap">${S.nb}冊 ・ ${byPg.size} / ${cap}ページ使用</span></h2>
+    <p>同じ種類でも、つながりのない血統は別のページに記録されます。標本を作ると、空きページに自動で記録されます。血統名は自分でつけられます。</p>
+    <div class="pgrow">${Array.from({length:S.nb},(_,i)=>`<button class="pgb ${i===nbBook?'on':''}" data-act="nbbook" data-v="${i}" aria-pressed="${i===nbBook}">${i+1}冊目</button>`).join('')}</div>
+    <div class="pgrow pages">${Array.from({length:NB_PAGES},(_,i)=>{const n=i+1,g=nbBook*NB_PAGES+n;return`<button class="pgb sm ${n===nbPg?'on':''} ${byPg.has(g)?'fill':''}" data-act="nbpg" data-v="${n}" aria-label="${g}ページ${byPg.has(g)?'(記入あり)':'(空き)'}" aria-pressed="${n===nbPg}">${n}</button>`;}).join('')}</div>
+    <div class="btns two"><button class="btn ghost sm" data-act="nbstep" data-d="-1" ${gp<=1?'disabled':''}>◀ 前のページ</button><button class="btn ghost sm" data-act="nbstep" data-d="1" ${gp>=cap?'disabled':''}>次のページ ▶</button></div>
+    <details style="margin-top:8px"><summary>見かた</summary><ul>
+      <li>上が親、下が子で、世代が下へ進みます。つながっていない個体は別の血統(別ページ)です。</li>
+      <li>丸い形の大きさは体長、色は体色です(ニジイロは筋色も縦線で表示)。個体をタップすると詳細が見られます。</li>
+      <li>緑の枠=標本 / 破線=売却・手放し・納品・埋葬 / ?=親の記録なし / 右上の色の点=目印の色</li>
+      <li>ペアで買った個体や、最初のペアは同じ血統として扱われます。別の血統の個体を交配すると、2つの血統は1つのページにまとまります。</li></ul></details></div>`;
+  const L=byPg.get(gp);
+  if(L){
+    const sp=SP[L.sp],rec=S.bl[L.key];
+    const mg=Math.max(...L.spec.map(id=>{const p=S.ped[id];return p.wd?0:p.g;}));
+    h+=`<div class="card"><div class="pghead"><span class="pgno">p.${gp}</span><b>${esc(sp.name)}</b></div>
+      <label class="blname"><input type="text" maxlength="12" data-blname="${L.key}" value="${esc(rec.name)}" placeholder="名前を入力" aria-label="血統名"><b>血統</b></label>
+      <p class="cap">標本 ${L.spec.length}点 ・ 記録 ${L.mem.length}匹 ・ 最高累代 F${mg}</p>`;
+    const bl=treeBlocks(L.spec);
+    h+=bl.map((b,i)=>`<div class="pedblk">${bl.length>1?`<div class="pedt">家系${i+1}: ${esc(b.t)}</div>`:''}<div class="treewrap">${b.svg}</div></div>`).join('');
+    h+=`</div>`;
+  }else h+=`<div class="card"><p>p.${gp} は空きページです。標本を作ると、血統ごとに自動でここに記録されます。</p></div>`;
+  if(wait.length)h+=`<div class="card"><h2>ページ待ちの血統 <span class="cap">${wait.length}件</span></h2><p>ノートがいっぱいで記録できていません。ショップで血統ノートを買い足すと、自動で記録されます。</p><ul class="log">${wait.map(l=>`<li><span class="d">${esc(SP[l.sp].s)}</span><span>標本 ${l.spec.length}点</span></li>`).join('')}</ul></div>`;
+  return h;
+}
+const SIZEW=r=>r<.2?'小さめ':r<.45?'やや小さめ':r<.7?'標準的':r<.9?'大型':'特大・記録級';
+const CDESC={kokuwa:'黒褐色。つやは控えめ',nokogiri:'赤茶〜焦げ茶(個体差あり)。胸に細かな毛',hirata:'漆黒。縦溝のある翅',miyama:'赤褐色の翅。頭と胸は黒く金色の毛',okuwa:'つやのある黒(黒いダイヤ)',girafa:'焦げ茶色。赤みのある光沢',boileau:'黒褐色。上翅の両サイドがクリーム色',yamatosabi:'錆びたような褐色のビロード。大あごだけ黒い',didieri:'つやのある黒褐色',speciosus:'赤橙色の上翅と黒い頭・胸',oberthuri:'真紅〜黒の上翅(個体差あり)と漆黒の前胸。艶で評価',westwoodii:'黒褐色。橙褐色を帯びた上翅',tarandus:'強いつやのある漆黒'};
+function pedLine(id,lab){
+  if(!id)return`<p><span class="k">${lab}</span>記録なし</p>`;
+  const p=S.ped[id];
+  if(!p)return`<p><span class="k">${lab}</span>#${id}(記録が残っていません)</p>`;
+  return`<p><span class="k">${lab}</span><button class="lnk" data-act="ped" data-id="${p.id}">${p.sx==='f'?'♀':'♂'}#${p.id} ${p.wd?'WD':'F'+p.g}${p.sz?' '+p.sz+'mm':''}(${PF[p.f]||''})</button></p>`;
+}
+function pedSheetHTML(id){
+  const p=S.ped[id];
+  const head=t=>`<div class="sheet-head"><h2>${t}</h2><button class="close" data-act="close">閉じる</button></div>`;
+  if(!p)return head('#'+id)+`<div class="note">この個体の記録は残っていません。</div>`;
+  const sp=SP[p.sp],sx=p.sx,rg=sx==='m'?sp.m:sp.f,known=p.sz>0;
+  const live=S.beetles.find(b=>b.id===id&&b.stage!=='dead');
+  const spec=S.spec.find(x=>x.id===id),lb=S.beetles.find(b=>b.id===id);
+  const ib=p.ib!=null&&p.ib>0?p.ib:(spec?spec.inb:(lb?lb.inb:0))||0;
+  const fake={id:p.id,sp:p.sp,sex:sx,stage:'adult',size:known?p.sz:(rg[0]+rg[1])/2,food:0,hp:100,col:p.col,cs:p.cs,mat:'ferm',jk:'norm',mu:p.mu||[]};
+  const r=known?clamp((p.sz-rg[0])/(rg[1]-rg[0]),0,1):0;
+  const kids=Object.values(S.ped).filter(x=>x.pa===id||x.ma===id),ks=kids.filter(x=>x.f==='p').length;
+  let colTxt;
+  if(sp.iri){const c=COLS[p.sp].find(x=>x.id===p.col)||COLS[p.sp][0];colTxt=p.sp==='nijiiro'?`地色: ${c.n} / 筋色: ${stripeOf(fake).n}${known?`(ランク${rank(fake)})`:''}`:`${sp.gloss?'艶':'体色'}: ${c.n}${known?`(ランク${rank(fake)})`:''}`;}
+  else colTxt='体色: '+(CDESC[p.sp]||'—');
+  const mus=(p.mu||[]).map(c=>`<span class="mtag">${MUN[c]}</span>`).join(' ');
+  const o=originOf(p);
+  const originLine=p.wd?'野外採集(WD)':(p.pa||p.ma)?`自家繁殖(F${p.g})`:({shop:'ショップで購入',gacha:'ガラポンで入手',gift:'もらった個体',unk:'由来の記録なし(購入・ガラポン・古いデータなど)'}[o]||'');
+  const ct=(p.ct||[]);
+  let h=head(`${sx==='f'?'♀':'♂'}#${p.id} ${esc(sp.name)}`);
+  h+=`<div class="pdgrid"><div class="pdl"><div class="art big">${known?artSVG(fake,{bg:false}):'<div class="noimg">?<small>サイズの記録なし</small></div>'}</div>
+    ${known?`<div class="gg" aria-label="種の範囲の中での位置"><i style="left:${f1(r*100)}%"></i></div><div class="ggl"><span>${rg[0]}</span><b>${p.sz}mm</b><span>${rg[1]}</span></div>`:''}</div>
+    <div class="pdr">
+    <p><span class="k">サイズ</span>${known?`体長 <b>${p.sz}mm</b>(${SIZEW(r)})<br>種の範囲 ${rg[0]}–${rg[1]}mm の約${Math.round(r*100)}%の位置`:'記録なし'}</p>
+    <p><span class="k">色・特徴</span>${esc(colTxt)}<br>${mus||'変異なし'}</p>
+    <p><span class="k">血統</span>${(()=>{const r=p.bl&&S.bl[p.bl];return r&&r.pg?esc(r.name||'名無し')+'血統(p.'+r.pg+')':'—';})()}</p>
+    <p><span class="k">出どころ</span>${esc(originLine)}<br>近交度 ${Math.round(ib*100)}%</p>
+    ${pedLine(p.pa,'父(一つ上)')}${pedLine(p.ma,'母(一つ上)')}
+    <p><span class="k">子</span>${kids.length?`${kids.length}匹(うち標本 ${ks})`:'なし'}</p>
+    <p><span class="k">コンテスト歴</span>${ct.length?ct.map(c=>`${c.day}日目 ${esc(c.name)} <b>${c.place}位</b>`).join('<br>'):'出場なし'}</p>
+    <p><span class="k">経歴</span>${p.d}日目に誕生 → ${p.e?`${p.e}日目に${PF[p.f]||''}`:`現在 ${PF[p.f]||'飼育中'}`}</p>
+    ${live?`<div class="btns"><button class="btn ghost sm" data-act="open" data-id="${p.id}">飼育画面を開く</button></div>`:''}
+    </div></div>`;
+  return h;
+}
+function openPed(id){
+  sheetId=null;confirmAct=null;
+  $('sheet').innerHTML=pedSheetHTML(id);
+  $('sheet').hidden=false;$('sheetBack').hidden=false;$('sheet').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function patchHTML(){
+  let h=`<div class="sheet-head"><h2>更新情報</h2><button class="close" data-act="close">閉じる</button></div>`;
+  for(const p of PATCH){
+    h+=`<div class="card"><h2>Ver.${esc(p.v)} <small>${esc(p.d)}</small></h2><p><b>${esc(p.t)}</b></p>`;
+    for(const [k,items] of p.g)h+=`<h3>${esc(k)}</h3><ul class="pn">${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+    h+='</div>';
+  }
+  return h;
+}
+/* 留守中のできごと */
+function awayHold(){return S.pn!==PATCH[0].v||(typeof jg!=='undefined'&&jg);}
+function awayHTML(){
+  const a=lastAway;
+  let h=`<div class="sheet-head"><h2>留守中のできごと</h2><button class="close" data-act="close">閉じる</button></div>`;
+  if(!a)return h+'<p>まだ記録がありません。</p>';
+  h+=`<p class="cap">${a.from}日目 → ${a.to}日目(約${a.days}日)。悪い知らせ ${a.bad}件 / 良い知らせ ${a.good}件</p>`;
+  if(a.care.length){
+    h+='<div class="care"><b>お世話が必要な個体</b><div class="btns">';
+    for(const id of a.care){const b=byId(id);if(!b||b.stage==='dead')continue;const ci=careIssues(b);
+      h+=`<button class="btn ghost" data-act="open" data-id="${b.id}">${esc(bname(b))}: ${esc(b.bind?'アゴ縛りを解き忘れています':ci.length?ci[0].t.split('。')[0]:'体力が少なくなっています')}</button>`;}
+    h+='</div></div>';
+  }
+  h+='<ul class="log">';
+  if(!a.items.length)h+='<li>特に大きなできごとはありませんでした</li>';
+  for(const l of a.items.slice(0,80))h+=`<li><span class="d">${l.d}日目</span><span class="${l.k}">${esc(l.t)}</span></li>`;
+  if(a.items.length>80)h+=`<li>ほか ${a.items.length-80}件</li>`;
+  return h+'</ul>';
+}
+function openAway(){
+  sheetId=null;confirmAct=null;
+  $('sheet').innerHTML=awayHTML();
+  $('sheet').hidden=false;$('sheetBack').hidden=false;$('sheet').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function openPatch(){
+  sheetId=null;confirmAct=null;
+  $('sheet').innerHTML=patchHTML();
+  $('sheet').hidden=false;$('sheetBack').hidden=false;$('sheet').scrollTop=0;
+  document.body.style.overflow='hidden';
+  if(S.pn!==PATCH[0].v){S.pn=PATCH[0].v;save();}
+  pnBadge();
+}
+function pnBadge(){const b=$('pnBtn');if(b)b.classList.toggle('new',S.pn!==PATCH[0].v);}
+function dexHTML(){
+  return segHTML('dexsub',[['dex','図鑑'],['spec','累代表']],dexSub)+(dexSub==='dex'?dexList():specList());
+}
+function shopHTML(){
+  const sh=SH();
+  let h=`<div class="card"><p>卵・成虫(♂/♀/ペア)を買えます。成虫は割高ですが、すぐ繁殖に使えます(ペアはお得)。ショップの個体は新しい血統なので、近交度のリセットにも使えます。買った個体は現在の棚(${esc(sh.name)})に入ります(満杯なら空きのある棚へ)。空きスロット合計 ${free()}</p></div>`;
+  ORDER.forEach((id,i)=>{
+    const sp=SP[id];
+    const fake={id:950+i,sp:id,sex:'m',stage:'adult',size:sp.m[1]*.85,food:0,hp:100,col:sp.iri?COLS[id][0].id:null,cs:id==='nijiiro'?'red':null,mat:'ferm',jk:'norm',mu:[]};
+    const ok=(c,n)=>S.coins>=c&&free()>=n?'':'disabled';
+    h+=`<div class="shopc"><div class="art">${artSVG(fake)}</div><div class="meta"><h3>${esc(sp.name)}</h3>
+      <p class="stars">${stars(sp.star)}</p><p>${layName(sp)} / ♂ 最大 ${sp.m[1]}mm / 適温 ${sp.pref[0]}–${sp.pref[1]}°C</p>${sp.iri?`<p>${sp.gloss?'艶はランダム(鏡面艶はレア)':id==='nijiiro'?'地色・筋色ともランダム(レアな組み合わせあり)':'体色ランダム(レア色あり)'}</p>`:''}
+      <div class="sbtns">
+        <button class="btn sm" data-act="buy" data-sp="${id}" ${ok(sp.price,1)}>卵 ${sp.price}pt</button>
+        <button class="btn sm" data-act="buyadult" data-sp="${id}" data-k="p" ${ok(pairPrice(sp),2)}>ペア ${pairPrice(sp)}pt</button>
+        <button class="btn sm ghost" data-act="buyadult" data-sp="${id}" data-k="m" ${ok(adultPrice(sp),1)}>♂ ${adultPrice(sp)}pt</button>
+        <button class="btn sm ghost" data-act="buyadult" data-sp="${id}" data-k="f" ${ok(adultPrice(sp),1)}>♀ ${adultPrice(sp)}pt</button>
+      </div></div></div>`;
+  });
+  h+=`<div class="card"><h2>お世話グッズ</h2>
+    <p>産卵木 ${WOOD_PRICE}pt(所持 ${S.wood}本)。材産みの種類のペアリングで1本使います。</p>
+    <div class="btns"><button class="btn" data-act="buywood" ${S.coins>=WOOD_PRICE?'':'disabled'}>産卵木を買う <small>${WOOD_PRICE}pt</small></button></div>
+    <p style="margin-top:12px">加湿器 ${HUMID_PRICE}pt(${esc(sh.name)}用)。ケースの湿度の減りが大きく抑えられ、湿度が50を下回ると自動で補給されます(霧吹き不要)。部屋の湿度が上がり、室温は1°C下がります。ただし汚れやすくなり、電気代がかかります(約0.25pt/日)。</p>
+    <div class="btns">${sh.humidOwn
+      ?`<button class="btn ${sh.humid?'':'ghost'}" data-act="humidtoggle">${esc(sh.name)}の加湿器: ${sh.humid?'ON(タップでOFF)':'OFF(タップでON)'}</button>`
+      :`<button class="btn" data-act="humidbuy" ${S.coins>=HUMID_PRICE?'':'disabled'}>${esc(sh.name)}に加湿器を買う <small>${HUMID_PRICE}pt</small></button>`}</div>
+    <p style="margin-top:12px">ワインセラー ${CEL_PRICE}pt(全棚共通)。個体を入れると、設定した温度(${CEL_MIN}〜${CEL_MAX}°C)で飼えます。最大${CEL_CAP}匹。卵・幼虫・成虫どれでもOK。エアコンは${AC_MIN}°Cまでしか下がらないので、低温種(ミヤマ・ディディエール・ウエストウッディ・オウゴンオニ・タランドゥス)の飼育に。適温で育てた低温種の幼虫は大きく育ちます。電気代は約1.2pt/日〜。</p>
+    <div class="btns">${S.cel.own?`<button class="btn ghost" disabled>導入ずみ</button>`
+      :`<button class="btn" data-act="celbuy" ${S.coins>=CEL_PRICE?'':'disabled'}>ワインセラーを買う <small>${CEL_PRICE}pt</small></button>`}</div></div>`;
+  h+=`<div class="card"><h2>血統ノート</h2><p>累代表(血統ノート)は1冊10ページ、1血統=1ページで記録されます。最初の1冊に加えて、最大4冊(合計5冊=50ページ)まで買い足せます。いま ${S.nb} / ${NB_MAX}冊(使用 ${Object.values(S.bl).filter(r=>r.pg).length} / ${nbCap()}ページ)。</p><div class="btns"><button class="btn" data-act="buynb" ${S.nb<NB_MAX&&S.coins>=NB_PRICE?'':'disabled'}>${S.nb<NB_MAX?`血統ノートを買う <small>${NB_PRICE}pt</small>`:'これ以上ふやせません'}</button></div></div>`;
+  const cost=60*(sh.slots-5),sc=250*S.shelves.length;
+  h+=`<div class="card"><h2>飼育棚</h2><p>${esc(sh.name)}のスロットを2つ追加(いま ${sh.slots} / 16)</p>
+    <div class="btns"><button class="btn" data-act="slot" ${sh.slots<16&&S.coins>=cost?'':'disabled'}>${sh.slots<16?`スロット +2 <small>${cost}pt</small>`:'これ以上ふやせません'}</button></div>
+    <p style="margin-top:12px">新しい棚を設置(いま ${S.shelves.length} / 5棚)。棚ごとにエアコン・加湿器・スロットが別になります。</p>
+    <div class="btns"><button class="btn" data-act="buyshelf" ${S.shelves.length<5&&S.coins>=sc?'':'disabled'}>${S.shelves.length<5?`棚を増やす <small>${sc}pt</small>`:'これ以上ふやせません'}</button></div></div>`;
+  h+=`<div class="card"><h2>データ</h2><p>セーブは自動です(このブラウザの中に保存されます)。別の端末やURLへ引っ越すときは、書き出したファイルを読み込んでください。</p>
+    <div class="btns two"><button class="btn ghost" data-act="exportsave">セーブを書き出す</button><button class="btn ghost" data-act="importsave">セーブを読み込む</button></div>
+    <input type="file" id="impFile" accept="application/json,.json,.txt" hidden>
+    <div class="btns" style="margin-top:10px"><button class="btn danger" data-act="reset">最初からやり直す</button></div></div>`;
+  return h;
+}
+function evHTML(){
+  let h=segHTML('evsub',[['req','依頼'],['ct','コンテスト'],['gc','ガラポン'],['ach','実績']],evSub);
+  const adults=S.beetles.filter(b=>b.stage==='adult');
+  if(evSub==='req'){
+    const dd=Math.floor(S.day);
+    h+=`<div class="card"><p>お客さんからの依頼です(最大3件)。条件に合う成虫を納品するとptがもらえます。新しい依頼は時々届き、期限は40日です。</p></div>`;
+    if(!S.reqs.length)h+=`<div class="card"><p>いまは依頼がありません。しばらく待とう。</p></div>`;
+    for(const r of S.reqs){
+      const ok=adults.filter(b=>reqOK(r,b)).sort((a,b)=>b.size-a.size).slice(0,5);
+      h+=`<div class="card"><h2>${esc(reqTitle(r))}</h2><p>報酬 <b>${r.rw}pt</b> ・ 期限 あと${Math.max(0,r.due-dd)}日</p>`;
+      if(!ok.length)h+=`<p class="cap">条件に合う個体がいません。</p>`;
+      else h+=`<div class="btns">${ok.map(b=>{const key='d'+r.id+'-'+b.id;
+        return`<button class="btn ghost" data-act="deliver" data-q="${r.id}" data-id="${b.id}">${confirmAct===key?'本当に納品? もう一度':`${esc(bname(b))} ${b.size}mm ${genLabel(b)}${(b.mu||[]).length?' ['+b.mu.map(c=>MUS[c]).join('')+']':''} を納品`}</button>`;}).join('')}</div>`;
+      h+=`</div>`;
+    }
+  }else if(evSub==='ct'){
+    const ci=cInfo(),sp=SP[ci.sp],c=S.ct,dd=Math.floor(S.day);
+    h+=`<div class="card"><h2>大会の予告</h2><p class="cap">受付は開催日から${COPEN}日間。出場させる個体は事前に育てておこう。</p><ul class="log">`;
+    for(const e of cSched())h+=`<li><span class="d">${e.cur?'受付中':'予告'}</span><span><b>${esc(cTitle(e.sp))}</b> ${e.start}〜${e.end}日目 <span class="cap">${e.cur?`(あと${ci.left}日で締切)`:`(あと${Math.max(0,e.start-dd)}日で受付開始)`}</span></span></li>`;
+    h+=`</ul></div>`;
+    if(ci.open){
+      h+=`<div class="card"><h2>受付中: ${esc(cTitle(ci.sp))}</h2>
+        <p>あと<b>${ci.left}日</b>で締切</p>
+        <p class="cap">${sp.gloss?'艶ランクとサイズから決まる評価額で競います。':sp.iri?'体色ランクとサイズから決まる評価額で競います。':'♂の体長で競います。'}出場させても個体は手元に残ります。賞金は順位で決まります(参加賞あり)。</p>`;
+      if(c.entry)h+=`<p>エントリー中: <b>${esc(c.entry.name)}</b>(${c.entry.sc}${sp.iri?'pt相当':'mm'})</p>`;
+      const el=adults.filter(b=>cElig(b,ci.sp)).sort((a,b)=>cScore(b)-cScore(a)).slice(0,5);
+      if(!el.length)h+=`<p class="cap">出場できる個体がいません(${esc(sp.name)}${sp.iri?'':'の♂'}が必要)。</p>`;
+      else h+=`<div class="btns">${el.map(b=>`<button class="btn ghost" data-act="enter" data-id="${b.id}">${esc(bname(b))} ${b.size}mm を出場させる</button>`).join('')}</div>`;
+      h+=`</div>`;
+    }
+    const L=S.ctLast;
+    if(L&&SP[L.sp]){
+      const bd=L.board||[],iri=!!SP[L.sp].iri;
+      h+=`<div class="card"><h2>前回の結果 <span class="cap">${esc(L.name||'')}</span></h2>`;
+      if(!bd.length)h+=`<p>出場者がいませんでした。</p>`;
+      else{
+        h+=L.entered?`<p>あなたは <b>${L.place}位</b>(賞金 ${L.prize}pt)</p>`:`<p>不参加でした。次回以降の目安にしてください。</p>`;
+        h+=`<p class="cap">優勝ライン ${bd[0].sc}${iri?'pt相当':'mm'}</p><ol class="board">${bd.map(x=>`<li class="${x.me?'me':''}">${esc(x.name)} <b>${x.sc}</b></li>`).join('')}</ol>`;
+      }
+      h+=`</div>`;
+    }
+    if(S.ctHist&&S.ctHist.length>1){
+      h+=`<div class="card"><h2>過去の大会の目安</h2><ul class="log">${S.ctHist.map(x=>`<li><span class="d">${x.day}日目</span><span>${esc(x.name)} 優勝 <b>${x.top}</b>${x.iri?'pt':'mm'} / 最下位 ${x.low} / ${x.place?x.place+'位':'不参加'}</span></li>`).join('')}</ul></div>`;
+    }
+  }else if(evSub==='gc'){
+    const g=gInfo(),tot=g.th.w.reduce((s,w)=>s+w[1],0);
+    h+=`<div class="card"><h2>ガラポン大会 <span class="cap">${esc(g.th.n)}</span></h2>
+      <p class="cap">${esc(g.th.d)}</p>
+      <p>${g.open?`開催中 あと<b>${g.left}日</b> ・ 残り${g.remain}回`:`休止中。次回まで あと<b>${g.next}日</b>`}</p>
+      <p class="cap">1回${GC_PRICE}pt。ランダムな種類の幼虫(2齢ごろ)が1匹出ます。空きスロットが必要です。出る系統は大会ごとに変わります。次回の系統: <b>${esc(g.nx.n)}</b></p>
+      <div class="btns"><button class="btn" data-act="gacha" ${g.open&&g.remain>0&&S.coins>=GC_PRICE&&free()>=1?'':'disabled'}>ガラポンを回す <small>${GC_PRICE}pt</small></button></div></div>`;
+    if(S.gLast){
+      const sp=SP[S.gLast.sp],fb={id:970,sp:S.gLast.sp,sex:'m',stage:'larva',w:sp.peak*.35,kind:'mat',food:100,hp:100,prog:5,mu:[]};
+      h+=`<div class="card"><h2>前回の結果</h2><div class="shopc" style="margin:0"><div class="art">${artSVG(fb)}</div><div class="meta"><h3>${esc(sp.name)}</h3><p class="stars">${stars(sp.star)}</p></div></div></div>`;
+    }
+    h+=`<div class="card"><h2>出やすさ(${esc(g.th.n)})</h2><ul>${g.th.w.map(w=>`<li>${esc(SP[w[0]].name)} ${stars(SP[w[0]].star)} …… ${(w[1]/tot*100).toFixed(1)}%</li>`).join('')}</ul></div>`;
+  }else{
+    const n=ACH.filter(a=>S.ach[a.id]).length;
+    h+=`<div class="card"><p>実績 ${n} / ${ACH.length}。達成するとptがもらえます。</p></div>`;
+    h+=`<div class="card"><ul class="log">${ACH.map(a=>`<li><span class="d">${S.ach[a.id]?'✓':'・'}</span><span class="${S.ach[a.id]?'good':''}"><b>${esc(a.n)}</b> ${esc(a.d)} <span class="cap">(${a.r}pt)</span></span></li>`).join('')}</ul></div>`;
+  }
+  return h;
+}
+function sig(){
+  const shs=S.shelves.map(x=>x.slots+''+x.humidOwn+x.humid).join(',');
+  if(tab==='shelf')return'shelf|'+S.cur+'|'+S.beetles.map(b=>b.id+b.stage+b.sh).join(',')+'|'+shs+'|'+S.hint+'|'+S.logN+'|'+S.wood+'|'+S.cel.own;
+  if(tab==='dex')return'dex|'+dexSub+'|'+JSON.stringify(S.dex)+'|'+S.spec.length+'|'+Object.values(S.ped).map(p=>p.f).join('')+'|'+nbBook+'|'+nbPg+'|'+S.nb+'|'+JSON.stringify(S.bl);
+  if(tab==='ev')return'ev|'+evSub+'|'+Math.floor(S.day)+'|'+S.coins+'|'+S.beetles.map(b=>b.id+b.stage+b.size).join(',')+'|'+S.reqs.map(r=>r.id).join(',')+'|'+JSON.stringify(S.ct)+'|'+S.ctHist.length+'|'+S.gc.used+'|'+Object.keys(S.ach).length+'|'+(S.gLast?S.gLast.n:0);
+  return'shop|'+S.coins+'|'+S.cur+'|'+shs+'|'+S.beetles.length+'|'+S.wood+'|'+S.cel.own;
+}
+function render(){
+  const v=$('view');
+  try{v.innerHTML=tab==='shelf'?shelfHTML():tab==='dex'?dexHTML():tab==='ev'?evHTML():shopHTML();}
+  catch(e){v.innerHTML=`<div class="card"><h2>表示エラー</h2><p>${esc(e&&e.message||e)}</p></div>`;}
+  lastSig=sig();
+  document.querySelectorAll('.treewrap').forEach(e=>{e.scrollLeft=Math.max(0,(e.scrollWidth-e.clientWidth)/2);});
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.v===tab?'true':'false'));
+}
+function updTile(el,b){
+  const k=artKey(b),art=el.querySelector('.art');
+  if(art.dataset.key!==k){art.dataset.key=k;art.innerHTML=artSVG(b);}
+  const mus=(b.mu||[]).map(c=>MUS[c]).join('');
+  el.querySelector('.st').textContent=stageLabel(b)+' · '+genLabel(b)+(mus?' ✦'+mus:'');
+  const m=el.querySelector('.mini i');m.style.width=Math.round(clamp(miniVal(b),0,100))+'%';
+  const bd=el.querySelector('.bdg');
+  if(b.stage==='dead'){bd.textContent='';bd.style.display='none';}
+  else{
+    const t=caseT(b),sx=tstress(SP[b.sp],t);
+    bd.style.display='';bd.textContent=(b.cel&&celOn()?'❄ ':'')+Math.round(t)+'°';
+    bd.classList.toggle('hot',sx>=.6);
+  }
+  const mk=el.querySelector('.mkr'),lid=el.querySelector('.lid');
+  if(b.mark||b.mc>=0){mk.style.display='';mk.textContent=b.mark||'●';mk.style.color=b.mc>=0?MCOLS[b.mc]:'#fff';}
+  else mk.style.display='none';
+  lid.style.background=b.mc>=0?MCOLS[b.mc]:'';
+  el.classList.toggle('warn',attn(b));
+  el.classList.toggle('dead',b.stage==='dead');
+}
+function bar(label,v,o){
+  o=o||{};
+  const n=Math.round(clamp(v,0,100)),low=o.rev?n>60:n<30;
+  const z=o.zone?`<u class="zone" style="left:${o.zone[0]}%;width:${o.zone[1]-o.zone[0]}%"></u>`:'';
+  return`<div class="bar ${low?'low':''}"><span>${label}</span><div class="track">${z}<i style="width:${n}%"></i></div><em>${n}</em></div>`;
+}
+function tScale(b){
+  const sp=SP[b.sp],t=caseT(b),lo=5,hi=35,pc=v=>clamp((v-lo)/(hi-lo)*100,0,100);
+  const sx=tstress(sp,t),cls=sx<.3?'':sx<1?'mid':'hot';
+  const tag=b.cel&&celOn()?'(ワインセラー)':b.dT<-.3?'(霧吹きで低下中)':'';
+  return`<div class="tsc ${cls}"><div class="tsl"><span>温度</span><b>${t.toFixed(1)}°C ${tag}</b><em>適温 ${sp.pref[0]}–${sp.pref[1]}</em></div>
+    <div class="tsb"><i class="ok" style="left:${pc(sp.pref[0])}%;width:${pc(sp.pref[1])-pc(sp.pref[0])}%"></i><i class="mk" style="left:${pc(t)}%"></i></div></div>`;
+}
+/* ゲージ: 構造(行・ボタン)が変わったときだけ作り直し、普段は数値だけ更新する(長押しが途切れないように) */
+function barList(b){
+  if(b.stage==='dead')return[];
+  const L=[];
+  if(b.stage==='larva'&&!isPre(b))L.push(['food','エサ'],['hp','体力']);
+  else if(mature(b)){L.push(['food','ゼリー'],['moist','湿度'],['clean','清潔'],['hp','体力']);}
+  else L.push(['hp','体力']);
+  L.push(['inb','近交度']);
+  return L;
+}
+function barVal(b,k){return k==='inb'?b.inb*100:b[k];}
+function barLow(b,k,n){if(k==='inb')return n>60;if(k==='moist')return n<30||n>(SP[b.sp].muggy||92);return n<30;}
+function barBtns(b,k){
+  if(!mature(b)||b.stage!=='adult')return'';
+  const pr=p=>S.coins<p?'disabled':'';
+  if(k==='food')return['norm','long'].map(j=>`<button class="btn sbtn ${b.jk===j?'':'ghost'}" data-act="jelly" data-id="${b.id}" data-k="${j}" ${pr(JELLY[j].price)} aria-pressed="${b.jk===j}">${j==='norm'?'通常':'ロング'}<small>${JELLY[j].price}pt</small></button>`).join('');
+  if(k==='moist')return`<button class="btn sbtn ghost hold" data-hold="mist" data-id="${b.id}">💧霧吹き</button>`;
+  if(k==='clean'&&!b.hib)return`<button class="btn sbtn ghost" data-act="clean" data-id="${b.id}">🧹掃除</button>`;
+  return'';
+}
+function barsKey(b){return[b.id,b.stage,mature(b),isPre(b),!!b.hib,b.jk,S.coins>=JELLY.norm.price,S.coins>=JELLY.long.price].join('|');}
+function barsHTML(b){
+  return barList(b).map(([k,lab])=>{const bt=barBtns(b,k),z=k==='moist'?`<u class="zone" style="left:40%;width:${(SP[b.sp].muggy||92)>80?40:Math.max(5,(SP[b.sp].muggy||92)-40)}%"></u>`:'';
+    return`<div class="bar ${bt?'wb':''}" data-k="${k}"><span>${lab}</span><div class="track">${z}<i></i></div><em></em>${bt?`<div class="bb">${bt}</div>`:''}</div>`;}).join('');
+}
+function updBars(b,el){
+  el.querySelectorAll('.bar[data-k]').forEach(r=>{
+    const k=r.dataset.k,n=Math.round(clamp(barVal(b,k)||0,0,100));
+    r.querySelector('.track i').style.width=n+'%';
+    const e=r.querySelector('em');if(e.textContent!==String(n))e.textContent=n;
+    r.classList.toggle('low',barLow(b,k,n));
+  });
+}
+function sheetBars(b){
+  if(b.stage==='dead')return'';
+  return tScale(b)+barList(b).map(([k,lab])=>bar(lab,barVal(b,k),k==='inb'?{rev:true}:k==='moist'?{zone:[40,80]}:{})).join('');
+}
+function row(k,v){return`<dt>${k}</dt><dd>${v}</dd>`;}
+function sheetInfo(b){
+  const sp=SP[b.sp],dm=itp(T_DEV,caseT(b));let h='';
+  h+=row('種類',esc(sp.name)+'('+layName(sp)+')');
+  h+=row('累代',genLabel(b)+(b.wd?'(野外採集)':(b.pa||b.ma?`(親 ♂#${b.pa||'?'} × ♀#${b.ma||'?'})`:'(ショップ・ガラポン)')));
+  h+=row('年齢',Math.floor(b.age)+'日');
+  if((b.stage==='adult'||b.stage==='dead')&&mdOf(b).n)h+=row('大あご',esc(mdOf(b).n));
+  if(b.tem!=null&&(b.stage==='adult'||b.stage==='dead'))h+=row('せいかく',esc(temName(b))+(b.bind?'(アゴ縛り中)':''));
+  if(b.inj)h+=row('けが','ペアリングで負傷(産卵数が減ります)');
+  if(b.stage==='egg')h+=row('孵化まで','あと約'+Math.max(1,Math.ceil((EGG-b.prog)/dm))+'日');
+  if(b.stage==='larva'){
+    h+=row('体重',(b.w).toFixed(1)+' g');
+    h+=row('えさ',(KINDS[b.kind]||KINDS.mat).n);
+    h+=row('成長',Math.round(clamp(b.prog/b.larvaDays*100,0,100))+'%');
+    if(SP[b.sp].semi){
+      const rg=b.thi==null?null:b.thi-b.tlo;
+      h+=row('温度の幅',rg==null?'2齢から記録します':`${rg.toFixed(1)}°C(${b.tlo.toFixed(1)}〜${b.thi.toFixed(1)}°C)<br><small>季節の温度変化(目安 3°C以上)があると、元気に育ちます</small>`);
+    }
+  }
+  if(b.stage==='pupa')h+=row('羽化まで','あと約'+Math.max(1,Math.ceil((PUPA-b.prog)/dm))+'日');
+  if(b.stage==='adult'||b.stage==='dead'){
+    h+=row('体長',b.size+' mm');
+    if((b.mu||[]).length)h+=row('変異',b.mu.map(c=>`<span class="mtag">${MUN[c]}</span>`).join(' '));
+    if(b.sp==='nijiiro'){
+      h+=row('地色',esc(colOf(b).n)+' ×'+colOf(b).mult);
+      h+=row('筋色',esc(stripeOf(b).n)+' ×'+stripeOf(b).mult);
+      if(nickOf(b))h+=row('通称',`<b>${esc(nickOf(b).n)}</b> ×${nickOf(b).mult}`);
+    }else if(sp.iri)h+=row(sp.gloss?'艶':'体色',esc(colOf(b).n)+' ×'+colOf(b).mult);
+    if(sp.iri)h+=row('評価','ランク'+rank(b));
+    if(b.stage==='adult'){
+      const lf=lifeF(b);
+      h+=row('売値',saleValue(b)+'pt'+(lf<1?`(寿命が短く減額中 ×${lf.toFixed(2)})`:''));
+      h+=row('休眠・成熟',!mature(b)?`休眠中 あと約${restLeft(b)}日で後食`:!ripe(b)?`成熟中 あと約${ripeLeft(b)}日`:'繁殖OK');
+      h+=row('マット',(MATS[b.mat]||MATS.ferm).n);
+      h+=row('ゼリー',(JELLY[b.jk]||JELLY.norm).n);
+      h+=row('寿命','あと約'+Math.max(0,Math.round((b.life-b.adultAge)/itp(T_AGE,caseT(b))))+'日');
+      if(b.sex==='f'){
+        h+=row('産卵',b.mated?'卵を準備中 あと約'+Math.max(1,Math.round(b.eggTimer))+'日':b.clutches+' / 3 回');
+      }else if(b.cool>0)h+=row('ペア','休憩中 あと約'+Math.round(b.cool)+'日');
+    }
+    if(b.stage==='dead')h+=row('死因',esc(b.cause));
+  }
+  if(b.inb>=.5)h+=row('注意','血が濃くなっています。この個体の子は脱落や奇形が出やすくなります。');
+  return h;
+}
+function kbtn(act,attrs,title,price,desc,cur,disabled){
+  return`<button class="btn kbtn ${cur?'':'ghost'}" data-act="${act}" ${attrs} ${disabled?'disabled':''} aria-pressed="${cur?'true':'false'}"><span>${title}<small>${price}pt</small></span><em>${desc}</em></button>`;
+}
+function sheetActs(b){
+  let h='';
+  const poor=c=>S.coins<c;
+  if(b.stage==='egg')h+=`<div class="note">たまごはそっと見守ろう。もうすぐ孵化します。</div>`;
+  else if(b.stage==='larva'){
+    if(isPre(b))h+=`<div class="note">前蛹です。エサは食べません。蛹になるまでそっとしておこう。</div>`;
+    else{
+      const fmv=fmOf(b,b.kind),spp=SP[b.sp];
+      if(fmv<=.05)h+=`<div class="note warn">⚠ このエサでは${esc(spp.name)}は育ちません。${b.prog<b.larvaDays*.2?'1齢のうちは大丈夫ですが、2齢からは成長が止まります。':'成長が止まり、体力が減っていきます。'}合うエサに交換しよう。<br>メモ: ${esc(spp.mm||'')}</div>`;
+      else if(fmv<.6)h+=`<div class="note warn">このエサは${esc(spp.name)}にあまり合っていません(育ちが悪い)。<br>メモ: ${esc(spp.mm||'')}</div>`;
+      h+=`<h3>エサの交換</h3><div class="btns">`;
+      for(const k of KIND_IDS)h+=kbtn('kind',`data-id="${b.id}" data-k="${k}"`,KINDS[k].n,KINDS[k].price,KINDS[k].d,b.kind===k,poor(KINDS[k].price));
+      h+=`</div>`;
+    }
+  }
+  else if(b.stage==='pupa')h+=`<div class="note">蛹室を壊さないように、そっとしておこう。</div>`;
+  else if(b.stage==='adult'){
+    if(!mature(b))h+=`<div class="note">羽化後の休眠中です。蛹室でじっとしています。あと約${restLeft(b)}日で後食(活動)を始めます。</div>`;
+    else{
+      h+=`<h3>お世話</h3><ul class="pn"><li>ゼリー: ${esc(JELLY.norm.d)}。ロングゼリー: ${esc(JELLY.long.d)}</li><li>霧吹きは押している間、湿度が増えます。あげすぎると蒸れます${SP[b.sp].muggy?`(この種類は湿度${SP[b.sp].muggy}を超えると蒸れます)`:''}。</li><li>ボタンは各ゲージの右にあります。</li></ul>`;
+    }
+    h+=`<h3>ケースのマット</h3><div class="btns">`;
+    for(const k of['hinoki','ferm','breed'])h+=kbtn('setmat',`data-id="${b.id}" data-m="${k}"`,MATS[k].n,MATS[k].price,MATS[k].d,b.mat===k,b.mat!==k&&poor(MATS[k].price));
+    h+=`</div><p class="cap" style="margin:6px 0 0">マットを替えると湿度が30にもどります。</p>`;
+    if(mature(b)){
+      if(eligible(b)){
+        const ps=partners(b),sp=SP[b.sp];
+        h+=`<h3>ペアリング</h3>`;
+        if(b.sex==='f'){
+          h+=`<ul class="chk">${reqs(b).map(r=>`<li class="${r.ok?'ok':'ng'}">${r.ok?'✓':'✗'} ${esc(r.t)}</li>`).join('')}</ul>`;
+          if(sp.lay==='wood'&&S.wood<1)h+=`<div class="btns"><button class="btn ghost" data-act="buywood" ${poor(WOOD_PRICE)?'disabled':''}>産卵木を買う <small>${WOOD_PRICE}pt</small></button></div>`;
+        }else h+=`<div class="note">繁殖できるかは、メスのケース(マット・産卵木)で決まります。</div>`;
+        if(!ps.length)h+=`<div class="note">同じ種類の、成熟した${b.sex==='m'?'メス':'オス'}がいません。</div>`;
+        else h+=`<div class="btns">${ps.map(p=>{const k=kinship(b.sex==='f'?b:p,{id:(b.sex==='f'?p:b).id,anc:(b.sex==='f'?p:b).anc});
+          return`<button class="btn ghost" data-act="pair" data-a="${b.id}" data-b="${p.id}">${esc(bname(p))} ${p.size}mm${b.sp==='nijiiro'?'('+colName(p)+')':''}${SP[b.sp].ag&&p.sex==='m'?` ${temName(p)}${p.bind?'・アゴ縛り中':''}`:''} と組ませる${k>=.12?` ⚠近縁${Math.round(k*100)}%`:''}</button>`;}).join('')}</div>`;
+      }else if(!ripe(b))h+=`<div class="note">後食は始まりましたが、まだ成熟していません。あと約${ripeLeft(b)}日待ってからペアリングしよう(早いと無精卵になりがち)。</div>`;
+      else if(b.sex==='f'&&b.clutches>=3)h+=`<div class="note">このメスは3回産卵しました。もう産めません。</div>`;
+      if(b.sex==='m'&&SP[b.sp].ag){
+        h+=`<h3>アゴ縛り</h3>`;
+        if(b.bind)h+=`<div class="note">アゴ縛り中: ペアリングで事故が起きません。解くまで寿命が早く減ります。</div><div class="btns"><button class="btn ghost" data-act="jawoff" data-id="${b.id}">アゴ縛りを解く</button></div>`;
+        else h+=`<p class="cap" style="margin:0 0 6px">気性の荒い種類は、ペアリングでメスを傷つけることがあります。成功すると事故を防げます(何度でも挑戦可)。</p><div class="btns"><button class="btn ghost" data-act="jaw" data-id="${b.id}" ${poor(JAW_PRICE)?'disabled':''}>アゴ縛りに挑戦 <small>${JAW_PRICE}pt</small></button></div>`;
+      }
+    }
+  }
+  else if(b.stage==='dead')h+=`<div class="btns"><button class="btn" data-act="bury" data-id="${b.id}">${b.natural&&b.size>0?`標本にして累代表に残す +${Math.round(value(b)*.6)}pt`:'埋葬する'}</button></div>`;
+  if(b.stage!=='dead'&&S.cel.own){
+    h+=`<h3>ワインセラー</h3><div class="btns">`;
+    if(b.cel)h+=`<button class="btn ghost" data-act="cellout" data-id="${b.id}">セラーから出す(室温にもどる)</button>`;
+    else h+=`<button class="btn ghost" data-act="cellin" data-id="${b.id}" ${cellCount()>=CEL_CAP?'disabled':''}>セラーに入れる(${cellCount()}/${CEL_CAP}・設定${S.cel.t}°C)</button>`;
+    h+=`</div>`;
+  }
+  if(b.stage!=='dead'){
+    h+=`<h3>目印(血統・累代の見分け用)</h3><div class="mkrow">${MARKS.map(k=>`<button class="mkb ${b.mark===k?'on':''}" data-act="setmark" data-id="${b.id}" data-k="${k}" aria-pressed="${b.mark===k}">${k||'なし'}</button>`).join('')}</div>
+      <div class="mkrow">${MCOLS.map((c,i)=>`<button class="mcb ${b.mc===i?'on':''}" style="background:${c}" data-act="setmc" data-id="${b.id}" data-c="${i}" aria-label="${MCN[i]}" aria-pressed="${b.mc===i}"></button>`).join('')}<button class="mkb ${b.mc<0?'on':''}" data-act="setmc" data-id="${b.id}" data-c="-1">色なし</button></div>
+      <h3>配置</h3><div class="btns two"><button class="btn ghost" data-act="mvl" data-id="${b.id}">◀ 左へ</button><button class="btn ghost" data-act="mvr" data-id="${b.id}">右へ ▶</button></div>`;
+    if(S.shelves.length>1)h+=`<div class="btns" style="margin-top:8px">${S.shelves.map((x,i)=>i===b.sh?'':`<button class="btn ghost" data-act="toshelf" data-id="${b.id}" data-s="${i}" ${freeIn(i)>0?'':'disabled'}>${esc(x.name)}へ移す(空き${freeIn(i)})</button>`).join('')}</div>`;
+    h+=`<div class="btns ${b.stage==='adult'?'two':''}" style="margin-top:14px">`;
+    if(b.stage==='adult')h+=`<button class="btn ghost" data-act="sell" data-id="${b.id}">${confirmAct==='sell'?'本当に売る? もう一度':`売る +${saleValue(b)}pt`}</button>`;
+    h+=`<button class="btn danger" data-act="release" data-id="${b.id}">${confirmAct==='rel'?'本当に逃がす? もう一度':'逃がす'}</button></div>`;
+  }
+  return h;
+}
+function actsSig(b){
+  return[b.stage,mature(b),!!b.hib,!!b.bind,S.coins>=JAW_PRICE,isPre(b),b.mated,b.clutches,b.cool>0,free()>=2,S.wood,b.mat,b.jk,b.kind,Math.round(b.stage==='larva'?fmOf(b,b.kind)*10:0),ripe(b),b.cel,S.cel.own,cellCount()>=CEL_CAP,S.cel.t,
+    S.coins>=4,S.coins>=6,S.coins>=10,S.coins>=12,S.coins>=14,S.coins>=15,S.coins>=20,S.coins>=25,S.coins>=55,
+    confirmAct,partners(b).map(p=>p.id).join('.'),eligible(b),saleValue(b),b.mark,b.mc,b.sh,S.shelves.map((x,i)=>freeIn(i)>0).join('')].join('|');
+}
+function openSheet(id){
+  if(!byId(id))return;
+  sheetId=id;confirmAct=null;actsKey='';
+  $('sheet').innerHTML=`<div class="sheet-head"><h2 id="sName"></h2><button class="close" data-act="close">閉じる</button></div>
+    <div id="sArt" class="art big" data-key=""></div><p class="stage" id="sStage"></p>
+    <div id="sCare"></div><div id="sTemp"></div><div id="sBars" data-key=""></div><dl class="info" id="sInfo"></dl><div id="sActs"></div>`;
+  $('sheet').hidden=false;$('sheetBack').hidden=false;
+  $('sheet').scrollTop=0;
+  document.body.style.overflow='hidden';
+  updSheet();
+}
+function closeSheet(){
+  holdStop();
+  sheetId=null;confirmAct=null;$('sheet').hidden=true;$('sheetBack').hidden=true;document.body.style.overflow='';
+}
+function updSheet(){
+  const b=byId(sheetId);
+  if(!b){closeSheet();return;}
+  const a=$('sArt'),k=artKey(b);
+  if(a.dataset.key!==k){
+    a.dataset.key=k;
+    const keep=[...a.querySelectorAll('.drop,.spark')];
+    a.innerHTML=artSVG(b);keep.forEach(x=>a.appendChild(x));
+  }
+  $('sName').textContent=bname(b);
+  $('sStage').textContent=stageLabel(b)+' · '+genLabel(b);
+  const ci=careIssues(b),ch=ci.length?`<div class="care"><b>お世話が必要です</b><ul>${ci.map(x=>`<li class="${x.lv}">${x.lv==='n'?'(注意)':''}${esc(x.t)}</li>`).join('')}</ul></div>`:'';
+  const sc=$('sCare');if(sc&&sc.dataset.h!==ch){sc.dataset.h=ch;sc.innerHTML=ch;}
+  $('sTemp').innerHTML=b.stage==='dead'?'':tScale(b);
+  const sb=$('sBars'),bk=barsKey(b);
+  if(sb.dataset.key!==bk){sb.dataset.key=bk;sb.innerHTML=barsHTML(b);}
+  updBars(b,sb);
+  $('sInfo').innerHTML=sheetInfo(b);
+  const ak=actsSig(b);
+  if(ak!==actsKey){actsKey=ak;$('sActs').innerHTML=sheetActs(b);}
+}
+function refresh(force){
+  checkAch();
+  $('day').textContent=Math.floor(S.day);
+  $('season').textContent=seasonOf(S.day);
+  $('pt').textContent=Math.floor(S.coins);
+  const W=WX[S.wx];
+  const sh0=SH();
+  $('tempNote').textContent=`${W.i}${W.n} 外気${S.out.toFixed(0)}° / ${sh0.name} 室温${roomT(sh0).toFixed(1)}° 湿度${Math.round(sh0.rh)}%`+(powerCost()>0?` / 電気代 約${powerCost().toFixed(1)}pt/日`:'');
+  const an=$('audNote');if(an){const run=Aud.ctx&&Aud.ctx.state==='running';const t=(S.audio.bgm||S.audio.sfx)&&!run?'(画面をタップすると音が出ます)':'';if(an.textContent!==t)an.textContent=t;}
+  document.querySelectorAll('#spdSeg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+S.speed)));
+  document.querySelectorAll('#audSeg button').forEach(b=>b.setAttribute('aria-pressed',String(!!S.audio[b.dataset.v])));
+  const sg=sig();
+  if((force||sg!==lastSig)&&!drag){const ae=document.activeElement;if(force||!(ae&&ae.matches&&ae.matches('input')))render();}
+  if(tab==='shelf'){
+    document.querySelectorAll('.tile[data-id]').forEach(el=>{const b=byId(+el.dataset.id);if(b)updTile(el,b);});
+    const cb=$('catchBtn');
+    if(cb){const w=Math.ceil((S.catchAt-Date.now())/1000),win=seasonIdx(S.day)===3;cb.disabled=win||w>0;cb.textContent=win?'冬は採集できません':w>0?`準備中 あと${w}秒`:'採集に行く';}
+    updEnv();
+  }
+  if(sheetId!=null&&!holdT)updSheet();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');
+  if(!el||el.disabled)return;
+  act(el.dataset.act,el);
+});
+document.addEventListener('pointerdown',e=>{
+  const h=e.target.closest('[data-hold="mist"]');
+  if(!h||h.disabled)return;
+  audInit();h.classList.add('on');holdStart(+h.dataset.id);
+});
+['pointerup','pointercancel'].forEach(ev=>window.addEventListener(ev,()=>{if(holdT)holdStop();}));
+window.addEventListener('blur',()=>{if(holdT)holdStop();});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-hold]'))e.preventDefault();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('sheet').hidden)closeSheet();
+  if(e.key==='Enter'&&e.target&&e.target.matches&&e.target.matches('[data-act="ped"]')){e.preventDefault();act('ped',e.target);}
+  const h=e.target.closest&&e.target.closest('[data-hold="mist"]');
+  if(h&&(e.key==='Enter'||e.key===' ')){
+    e.preventDefault();
+    const b=byId(+h.dataset.id);
+    if(b){b.moist=Math.min(100,b.moist+8);b.dT=Math.max(-2.5,(b.dT||0)-.2);fx('mist');sfx('mist');updSheet();}
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t&&t.id==='impFile'&&t.files&&t.files[0]){
+    const rd=new FileReader();
+    rd.onload=()=>{
+      let o=null;try{o=JSON.parse(rd.result);}catch(err){}
+      if(!o||typeof o!=='object'||!Array.isArray(o.beetles)||o.day==null){toast('くわがた荘のセーブファイルではないようです');sfx('err');return;}
+      if(!confirm(`このセーブ(${Math.floor(o.day)}日目・${o.beetles.filter(b=>b.stage!=='dead').length}匹)を読み込みます。今のデータは上書きされます。よろしいですか?`))return;
+      try{o.saved=Date.now();saveLock=true;localStorage.setItem(KEY,JSON.stringify(o));location.reload();}catch(err){toast('読み込みに失敗しました');}
+    };
+    rd.readAsText(t.files[0]);return;
+  }
+  if(t&&t.matches&&t.matches('[data-blname]')){
+    const r=S.bl[t.dataset.blname];
+    if(r){r.name=t.value.replace(/血統$/,'').trim().slice(0,12);save();toast(r.name?`「${r.name}血統」と名づけました`:'血統名を空にしました');}
+  }
+});
+['pointerdown','pointerup','touchstart','touchend','mousedown','click','keydown'].forEach(ev=>document.addEventListener(ev,audInit,{passive:true,capture:true}));
+
+/* ---------- boot ---------- */
+S=load();
+if(!S)fresh();
+else{
+  migrate();
+  syncLines();
+  const el=(Date.now()-(S.saved||Date.now()))/1000;
+  if(el>5)catchUp(el);
+}
+let lastT=Date.now(),saveT=0,uiT=0,hiddenAt=0;
+render();refresh(true);
+pnBadge();
+if(S.pn!==PATCH[0].v)setTimeout(openPatch,600);
+/* PWA: オフラインでも起動できるように(https で公開したときだけ) */
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+setInterval(()=>{
+  const now=Date.now(),el=(now-lastT)/1000;lastT=now;
+  if(document.hidden)return;
+  if(el>2.5)catchUp(el);
+  else sim(el/DAY_SEC*S.speed,false);
+  if(now-uiT>400){uiT=now;refresh(false);}
+  if(now-saveT>5000){saveT=now;save();}
+},200);
+window.addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){
+    hiddenAt=Date.now();holdStop();save();
+    if(Aud.ctx&&Aud.ctx.state==='running'){try{Aud.ctx.suspend();}catch(e){}}
+  }else{
+    const el=(Date.now()-hiddenAt)/1000;
+    if(hiddenAt&&el>5)catchUp(el);
+    lastT=Date.now();hiddenAt=0;
+    if(Aud.ctx&&Aud.ctx.state==='suspended'){try{Aud.ctx.resume();}catch(e){}}
+  }
+});
+})();
+</script>
+</body>
+</html>
