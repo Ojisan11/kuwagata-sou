@@ -1,5 +1,5 @@
 /* くわがた荘 Service Worker: 本体は「ネット優先・だめならキャッシュ」、画像やフォントは「キャッシュ優先」 */
-const CACHE='kuwagata-sou-3.2.0';
+const CACHE='kuwagata-sou-3.2.1';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()));

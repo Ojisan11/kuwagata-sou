@@ -373,6 +373,7 @@ body.dragging{overflow:hidden;touch-action:none;}
 <div id="sheetBack" class="sheet-back" data-act="close" hidden></div>
 <section id="sheet" class="sheet" role="dialog" aria-modal="true" aria-label="くわがたの詳細" hidden></section>
 <div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="impFile" accept="application/json,.json,.txt,text/plain" style="display:none">
 
 <script>
 (()=>{
@@ -2550,7 +2551,6 @@ function shopHTML(){
     <div class="btns"><button class="btn" data-act="buyshelf" ${S.shelves.length<5&&S.coins>=sc?'':'disabled'}>${S.shelves.length<5?`棚を増やす <small>${sc}pt</small>`:'これ以上ふやせません'}</button></div></div>`;
   h+=`<div class="card"><h2>データ</h2><p>セーブは自動です(このブラウザの中に保存されます)。別の端末やURLへ引っ越すときは、書き出したファイルを読み込んでください。</p>
     <div class="btns two"><button class="btn ghost" data-act="exportsave">セーブを書き出す</button><button class="btn ghost" data-act="importsave">セーブを読み込む</button></div>
-    <input type="file" id="impFile" accept="application/json,.json,.txt" hidden>
     <div class="btns" style="margin-top:10px"><button class="btn danger" data-act="reset">最初からやり直す</button></div></div>`;
   return h;
 }
@@ -2899,18 +2899,21 @@ document.addEventListener('keydown',e=>{
     if(b){b.moist=Math.min(100,b.moist+8);b.dT=Math.max(-2.5,(b.dT||0)-.2);fx('mist');sfx('mist');updSheet();}
   }
 });
-document.addEventListener('change',e=>{
-  const t=e.target;
-  if(t&&t.id==='impFile'&&t.files&&t.files[0]){
+/* セーブの読み込み: 入力欄は画面の作り直しの外に置く(ファイル選択中に消えないように) */
+function importSave(file){
     const rd=new FileReader();
     rd.onload=()=>{
-      let o=null;try{o=JSON.parse(rd.result);}catch(err){}
+      let o=null;try{o=JSON.parse(String(rd.result).replace(/^\uFEFF/,'').trim());}catch(err){}
       if(!o||typeof o!=='object'||!Array.isArray(o.beetles)||o.day==null){toast('くわがた荘のセーブファイルではないようです');sfx('err');return;}
       if(!confirm(`このセーブ(${Math.floor(o.day)}日目・${o.beetles.filter(b=>b.stage!=='dead').length}匹)を読み込みます。今のデータは上書きされます。よろしいですか?`))return;
       try{o.saved=Date.now();saveLock=true;localStorage.setItem(KEY,JSON.stringify(o));location.reload();}catch(err){toast('読み込みに失敗しました');}
     };
-    rd.readAsText(t.files[0]);return;
-  }
+    rd.onerror=()=>{toast('ファイルを読めませんでした');sfx('err');};
+    rd.readAsText(file);
+}
+$('impFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importSave(f);});
+document.addEventListener('change',e=>{
+  const t=e.target;
   if(t&&t.matches&&t.matches('[data-blname]')){
     const r=S.bl[t.dataset.blname];
     if(r){r.name=t.value.replace(/血統$/,'').trim().slice(0,12);save();toast(r.name?`「${r.name}血統」と名づけました`:'血統名を空にしました');}
